@@ -1,69 +1,75 @@
 package io.herald.MySpringWeb.Controller;
 
-// Import HttpServletRequest to read data sent from HTML forms
-import io.herald.MySpringWeb.UserRepository;
+import io.herald.MySpringWeb.Model.UserTable;
+import io.herald.MySpringWeb.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-
-// Spring MVC annotations
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@Controller   // Marks this class as a Spring MVC Controller
+import java.util.List;
+
+
+@Controller  //handles HTTP requests: GET, POST, etc.
 public class MappingClass {
+
+
     @Autowired
-    //Autowired annotation helps in dependency injection
-    //when autowired is present, all the necessary dependency files are provided to the autowired class
-    //also, new keyword is not required to satisfy the oop rule to create an object
     private UserRepository uRepo;
 
-    // Opens the first page when user visits: http://localhost:8080/
-    @GetMapping("/")
-    public String openFirstPage() {
-        return "firstPage.html";
+    @GetMapping("/")   //url pattern for mappping
+    public String openFirstPage(){
+        return "FirstPage";
     }
 
-    // Opens the next page when user visits: http://localhost:8080/nextPage
-    @GetMapping("/nextPage")
-    public String openNextPage() {
-        return "nextPage.html";
+    //url in this point was fixed
+    @GetMapping("/NextPage")
+    public String openNextPage(){
+        return "NextPage";
     }
-
-    // Displays the login page
-    // URL: http://localhost:8080/login
     @GetMapping("/login")
-    public String loginPage() {
-        return "loginPage.html";
+    public String login(){
+        return "login";
+
     }
 
-    // Handles form submission from loginPage.html
-    // This method runs when the form method="POST"
     @PostMapping("/login")
-    public String loginPost(HttpServletRequest request) {
-
-        // Read username entered by the user
-        String username = request.getParameter("username");
-
-        // Read password entered by the user
-        String password = request.getParameter("password");
-
-        // Print values in the console (for testing)
-        System.out.println("Username: " + username);
-        System.out.println("Password: " + password);
-
-        // Check if username and password are both "admin"
+    public String loginPost(HttpServletRequest request, Model m){
+        request.getParameter( "username");
+        request.getParameter( "password");
+        String username = request.getParameter( "username") ;
+        String password = request.getParameter( "password");
+        //when a from data does post request, httpServletRequest obtains those data as parameters
+        // in controller
         String hashPassword = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (uRepo.existsByUsernameAndPassword(username, hashPassword)) {
 
-            // Login successful
-            return "homePage.html";
-
-        } else {
-
-            // Login failed
-            return "loginPage.html";
+        if(uRepo.existsByUsernameAndPassword(username, hashPassword)){
+            List<UserTable> totalUsers = uRepo.findAll();
+            m.addAttribute("totalUsers", totalUsers);
+            HttpSession session = request.getSession();
+            session.setAttribute("username", username);
+            return "Home.html";
         }
+        return "login";
     }
+    @GetMapping ("/home")
+    public String homeGet(Model m)
+    {
+        m.addAttribute("totalUsers", uRepo.findAll());
+        return "Home";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request)
+    {
+        HttpSession session = request.getSession();
+        session.invalidate();
+        //logout your session
+        return "login";
+    }
+
 }
