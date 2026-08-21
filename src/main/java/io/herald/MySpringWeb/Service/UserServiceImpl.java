@@ -26,24 +26,29 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * Intercepts user saving to transparently encrypt passwords before database persistence,
-     * and triggers a welcome email for newly created accounts.
+     * Saves a user while protecting a raw password before database persistence.
+     * This method is also used by profile updates, so it does not send emails.
      */
     @Override
     public UserTable saveUser(UserTable user) {
-        // Only hash password if it's not already hashed (assuming BCrypt starts with $2a$)
+        // Only hash password if it is not already a BCrypt hash.
         // This prevents double-hashing on update operations.
-        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2")) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        
-        UserTable savedUser = userRepository.save(user);
-        
-        // Trigger background email dispatch (Note: ideally should check if it's a new registration vs update)
-        if (user.getEmail() != null) {
-            emailService.sendRegistrationEmail(user.getEmail(), user.getUsername());
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Persists a new account, then sends its welcome email without delaying the HTTP response.
+     */
+    @Override
+    public UserTable registerUser(UserTable user) {
+        UserTable savedUser = saveUser(user);
+        if (savedUser.getEmail() != null) {
+            emailService.sendRegistrationEmail(savedUser.getEmail(), savedUser.getUsername());
         }
-        
         return savedUser;
     }
 

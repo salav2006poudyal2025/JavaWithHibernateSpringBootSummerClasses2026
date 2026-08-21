@@ -8,13 +8,13 @@
 <div th:insert="navbar.html"></div>
 <h1>Edit this User</h1>
 <hr>
-<form method="post" action="updateUser">
+<form method="post" th:action="@{/updateUser}">
 
-  Id:<input type="text" th:value="${user.getId()}" name="id" readonly><br><br>
-  Username:<input type="text" th:value="${user.getUsername()}" name="username"><br><br>
-<input type="hidden" th:value="${user.getPassword()}" name="password">
+  <input type="hidden" th:value="${user.getId()}" name="id">
+  Username:<input type="text" th:value="${user.getUsername()}" name="username" required><br><br>
+  Email:<input type="email" th:value="${user.getEmail()}" name="email" required><br><br>
 
-  <input type="submit" value="EDIT!!!">
+  <input type="submit" value="Save Changes">
 
 </form>
 

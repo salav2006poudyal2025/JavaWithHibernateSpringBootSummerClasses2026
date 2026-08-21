@@ -1,514 +1,743 @@
-MY SPRING WEB — COMPLETE PROJECT DOCUMENTATION
-================================================
+MY SPRING WEB - COMPLETE PROJECT DOCUMENTATION
+===============================================
 
-Document purpose
-----------------
-This report documents the implementation present in the MySpringWeb source tree. It is written as a technical handover and project-submission report: each feature, component, data flow, and configuration item below is tied to an actual project file.
-
-1. PROJECT OVERVIEW
--------------------
-
-Project name: MySpringWeb (Maven artifact: MySpringWebGrp1)
-
-Objective: Deliver a Java 17 Spring Boot web application in which visitors can register, authenticate through a browser session or JWT API login, manage users, upload and view images, and use email and cloud-storage integrations.
-
-Problem solved: The application combines user account management with protected web and API workflows. It provides a browser-facing interface for registration, login, user administration, and image galleries, while also exposing authenticated REST user-management APIs for programmatic clients.
-
-Technology stack:
-* Java 17; Spring Boot 4.1.0; Maven.
-* Spring MVC, Thymeleaf, Spring Security, Spring Data JPA, Bean Validation, Spring Mail.
-* Hibernate/JPA with a MySQL-compatible production datasource; H2 is configured for tests.
-* JJWT 0.11.5 with HS256 signing for JSON Web Tokens.
-* Cloudinary HTTP5 SDK for cloud image storage.
-* Lombok for entity boilerplate generation.
-* Docker with Eclipse Temurin 17; Render blueprint configuration.
-
-Architecture used: layered N-tier Spring MVC architecture. The packages Model, Repository, Service, Controller/RController, Configuration, and Exception separate persistent data, data access, business rules, delivery channels, framework setup, and error translation.
-
-Deployment platform: Render is configured through render.yaml to deploy the Docker-based web service. Docker exposes application port 8080. Runtime credentials are supplied as environment variables.
-
-Database: the production configuration receives DB_URL, DB_USERNAME, and DB_PASSWORD from the environment and uses the MySQL JDBC driver. Hibernate schema management is configured with spring.jpa.hibernate.ddl-auto=update. The test profile uses in-memory H2.
-
-2. PROJECT ARCHITECTURE
+1. WHAT THIS PROJECT IS
 -----------------------
 
-The implementation follows the following N-tier request path:
+Project name: MySpringWeb
 
-Browser / API client
-        |
-        v
-Presentation layer: Thymeleaf templates and REST JSON payloads
-        |
-        v
-Controller layer: MVC controllers and REST controllers
-        |
-        v
-Service layer: user business operations, BCrypt authentication, registration email trigger
-        |
-        v
-Repository layer: Spring Data JPA repositories
-        |
-        v
-Database / external services: MySQL/H2, SMTP, Cloudinary
+MySpringWeb is a Java Spring Boot web application. It lets a person create an account, sign in, see the user list, edit user details, upload images, and use a REST API. It also sends a welcome email after registration, supports JWT tokens for API clients, and can store cloud images in Cloudinary.
 
-Presentation layer
-Files: src/main/resources/templates/*.html and src/main/resources/static/css/styles.css.
-Purpose: renders HTML pages, binds forms, renders lists supplied through Model/session attributes, and displays returned image data. Thymeleaf expressions such as th:action, th:href, th:each, th:text, th:value, and th:src connect templates to controller-supplied data.
+There are two ways to use the project:
 
-Controller layer
-Files: Controller/MappingClass.java, SignupController.java, UserController.java, GalleryController.java, MailController.java; RController/RControllerClass.java and AuthRestController.java.
-Purpose: maps HTTP routes, reads form values/request bodies, constructs models or redirect messages, invokes services/repositories, and selects an HTML view or HTTP response.
+1. Website use in a browser through the HTML pages.
+2. API use through REST endpoints and JWT Bearer tokens.
 
-Service layer
-Files: Service/UserService.java, UserServiceImpl.java, EmailService.java.
-Purpose: abstracts user operations behind an interface; hashes passwords, validates login credentials using BCrypt, delegates persistence, and sends the registration email after a saved user has an email address.
+Main technologies: Java 17, Spring Boot 4.1.0, Spring MVC, Thymeleaf, Spring Data JPA/Hibernate, MySQL-compatible database, H2 test database, Spring Security, BCrypt, JJWT, Spring Mail, Cloudinary, Maven, Docker, and Render.
 
-Repository layer
-Files: Repository/UserRepository.java, ImageRepository.java, Image2Repository.java.
-Purpose: extends JpaRepository to provide create, read, update, delete, and findAll operations. UserRepository additionally derives findByUsername from its method name.
 
-Database layer
-Files: Model/UserTable.java, ImageTable.java, ImageTable2.java; application.properties.
-Purpose: maps Java entity objects to relational records. UserTable is associated with locally stored image records and Cloudinary-image records. Database schema changes are maintained by Hibernate update mode.
+2. WHAT WAS IMPROVED
+--------------------
 
-Data-flow example: a signup POST reaches SignupController, which creates a UserTable and calls UserService.saveUser. UserServiceImpl BCrypt-encodes its password, calls UserRepository.save, then calls EmailService. JPA/Hibernate persists the entity to the datasource; the controller redirects the browser to login with a flash confirmation message.
+Signup is now faster
+~~~~~~~~~~~~~~~~~~~~
 
-3. JAVA CONCEPTS IMPLEMENTED
-----------------------------
+The welcome email was previously sent before the signup response finished. Sending email can be slow because it depends on the SMTP server and internet connection.
 
-Classes and objects
-Files: every Java source file, particularly Model/UserTable.java, ImageTable.java, ImageTable2.java, Service/UserServiceImpl.java, and Controller/GalleryController.java.
-Implementation: entities represent user and image data; controllers, services, configuration classes, filters, exception types, and repositories each have distinct responsibilities. Controllers instantiate UserTable and image objects during request processing.
-Purpose: encapsulate state and behavior in maintainable domain and framework components.
+The project now uses @EnableAsync in MySpringWebApplication.java and @Async in EmailService.java. The new flow is:
 
-Interfaces
-Files: Service/UserService.java; Repository/UserRepository.java, ImageRepository.java, Image2Repository.java.
-Implementation: UserService declares the user-operation contract and UserServiceImpl implements it. Each repository extends Spring Data's JpaRepository, inheriting generic persistence operations.
-Purpose: separates callers from service implementation and lets Spring generate repository implementations.
+1. The user account is saved.
+2. The browser redirects to the login page immediately.
+3. The welcome email is sent in the background.
 
-Inheritance
-Files: Service/UserServiceImpl.java, Configuration/JwtAuthenticationFilter.java, Exception/UserNotFoundException.java.
-Implementation: UserServiceImpl implements UserService; JwtAuthenticationFilter extends OncePerRequestFilter; UserNotFoundException extends RuntimeException. Repository interfaces inherit JPA operations from JpaRepository.
-Purpose: applies polymorphism, framework extension points, and a custom runtime error type.
+This removes SMTP waiting time from signup.
 
-Exception handling and custom exceptions
-Files: Exception/UserNotFoundException.java; GlobalExceptionHandler.java; RController/RControllerClass.java; Controller/GalleryController.java; Service/EmailService.java.
-Implementation: missing REST users cause UserNotFoundException. @ControllerAdvice maps it to 404 NOT FOUND, maps ConstraintViolationException to 400 BAD REQUEST, and provides a 500 fallback. Multipart I/O and mail delivery calls are wrapped in exception handling so their failures are handled at the operation boundary.
-Purpose: produces meaningful HTTP error responses for API clients and keeps integration failures from being unhandled in their local execution paths.
+Sign-in work reduced
+~~~~~~~~~~~~~~~~~~~~
 
-Stream handling
-File: Exception/GlobalExceptionHandler.java.
-Implementation: constraint violations are streamed, mapped to their messages, and joined with Collectors.joining(", ").
-Purpose: converts a set of validation issues into a concise client-readable error message.
+SQL output is now disabled in application.properties with spring.jpa.show-sql=false. The datasource driver was updated to com.mysql.cj.jdbc.Driver. Login performs one user lookup and BCrypt password verification.
 
-File handling
-File: Controller/GalleryController.java.
-Implementation: MultipartFile supplies uploaded bytes. The local gallery converts bytes to Base64 before persistence; the Cloudinary gallery passes bytes to cloudinary.uploader().upload.
-Purpose: supports multipart image submission and both local-database and cloud-backed image display paths.
+If login is still slow, check the database server and network. Login must contact the database. A distant, sleeping, overloaded, or slow cloud database will make login slower.
 
-JVM and runtime concepts
-Files: MySpringWebApplication.java; pom.xml; Dockerfile.
-Implementation: main invokes SpringApplication.run, starting the JVM-hosted Spring application context and embedded web runtime. pom.xml targets Java 17. Docker runs the packaged JAR with java -jar app.jar on an Eclipse Temurin 17 JRE image.
-Purpose: supplies a consistent Java runtime from local build through container deployment.
+Edit flow fixed
+~~~~~~~~~~~~~~~
 
-4. SPRING BOOT IMPLEMENTATION
-------------------------------
+The old edit form did not send the email value. It also sent the stored password hash back to the browser in a hidden field. The new edit flow is safe and complete:
 
-Startup
-File: MySpringWebApplication.java.
-@SpringBootApplication enables Spring Boot application configuration, component scanning, and auto-configuration. SpringApplication.run creates the application context, discovers annotated classes under io.herald.MySpringWeb, configures dependencies from pom.xml, and starts the HTTP server.
+1. editPage.html sends user id, username, and email.
+2. UserController loads the saved user from the database.
+3. Only username and email are changed.
+4. The BCrypt password and image links remain unchanged.
+5. The browser redirects to Home and displays a success message.
+6. If a signed-in user changes their own username, the session username is updated.
 
-Dependency injection
-Files: UserServiceImpl.java, EmailService.java, MappingClass.java, SignupController.java, UserController.java, GalleryController.java, RControllerClass.java, AuthRestController.java, SecurityConfig.java, JwtAuthenticationFilter.java.
-Implementation: @Autowired fields request Spring-managed dependencies such as UserService, repositories, JavaMailSender, PasswordEncoder, Cloudinary, JWUtil, and the JWT filter. Spring creates and wires the matching beans at startup.
+The password hash is no longer sent to the browser in the edit form.
 
-Configuration and beans
-Files: Configuration/SecurityConfig.java and CloudinaryConfig.java.
-@Configuration marks each class as a source of container definitions. @Bean creates the shared BCrypt PasswordEncoder, SecurityFilterChain, and Cloudinary client. @Value binds the JWT and Cloudinary configuration values from application properties/environment resolution.
+Files changed for these improvements:
 
-Stereotypes
-* @Controller: MappingClass, SignupController, UserController, GalleryController, MailController serve HTML views.
-* @RestController: RControllerClass and AuthRestController return HTTP response bodies.
-* @Service: UserServiceImpl and EmailService contain application work.
-* @Repository: UserRepository, ImageRepository, Image2Repository are persistence gateways.
-* @Component: JWUtil and JwtAuthenticationFilter are injectable infrastructure components.
-* @ControllerAdvice: GlobalExceptionHandler centralizes MVC/REST exception translation.
+* MySpringWebApplication.java
+* EmailService.java
+* UserService.java
+* UserServiceImpl.java
+* SignupController.java
+* UserController.java
+* RControllerClass.java
+* editPage.html
+* home.html
+* application.properties
 
-5. DATABASE, HIBERNATE, AND JPA
--------------------------------
 
-Entity design
-* UserTable.java is the user entity. It has identity-generated int id, username, email, password, a list of ImageTable images, and a list of ImageTable2 cloudImages.
-* ImageTable.java is the local-gallery entity. It has an identity-generated id, a LOB/MEDIUMBLOB-compatible String image holding Base64 image data, and a user association.
-* ImageTable2.java is the Cloudinary-gallery entity. It has an identity-generated id, a String imageUrl containing the returned secure URL, and a user association field.
-
-Table structure and relationships
-@Entity establishes persistence mappings. UserTable owns two @OneToMany collections mapped by the user property; ImageTable and ImageTable2 each use @ManyToOne with @JoinColumn(name = "user_id"). This produces a one-user-to-many-images relationship for both image storage approaches. CascadeType.ALL on UserTable's collections cascades entity operations to associated images.
-
-Validation
-File: Model/UserTable.java.
-username and password use @NotBlank; email uses @NotBlank and @Email. The global exception advice converts ConstraintViolationException into a 400 response when such violations are raised in a request flow.
-
-CRUD implementation
-* UserRepository inherits save, findById, findAll, and deleteById.
-* UserServiceImpl exposes saveUser, findById, findByUsername, findAllUsers, deleteUser, and authenticate.
-* RControllerClass implements GET, POST, PUT, and DELETE user APIs.
-* UserController implements browser edit, update, and delete actions.
-* ImageRepository and Image2Repository save local and Cloudinary image metadata respectively.
-
-Transactions and persistence flow
-Spring Data JPA repository save and delete operations are executed through Spring Data's repository transaction support. A user save flows from controller to UserServiceImpl, to UserRepository, then through Hibernate to the configured datasource. An image save similarly flows through the relevant image repository. Hibernate's update schema setting maintains the mapped schema at application startup.
-
-6. THYMELEAF FRONTEND
-----------------------
-
-signup.html
-Route: GET /signup; form POST /signup. It collects username, email, and password and uses th:action for the route. It displays controller flash messages through ${message}.
-
-login.html
-Route: GET/POST /login. The form posts credentials with th:action="@{/login}". It displays login failure feedback (${message}) and signup completion feedback (${signupSuccess}); it links to the signup page.
-
-home.html
-Route: GET /home. It inserts navbar.html and uses th:each over ${totalUsers} to render user identifiers and names. It posts user ids to editUser and deleteUser actions.
-
-galleryPage.html
-Route: GET/POST /gallery. The multipart form posts an image file. It iterates session.totalImages and creates data:image/jpeg;base64 sources from the stored Base64 content.
-
-galleryPage2.html
-Route: GET/POST /gallery2. The multipart form uploads to the Cloudinary workflow. th:each iterates ${cloudImages} and th:src displays each stored HTTPS URL.
-
-Supporting views
-firstPage.html is the landing page, nextPage.html is an auxiliary route, navbar.html supplies shared navigation, editPage.html binds a selected UserTable's fields for update, and mailPage.html is available from the authenticated-session mail route. static/css/styles.css provides the shared registration/login styling.
-
-Navigation flow: landing page -> signup or login -> home -> user management, local gallery, Cloudinary gallery, or mail view -> logout. The navbar displays the username held in the HTTP session.
-
-7. SPRING SECURITY AND SESSION HANDLING
-----------------------------------------
-
-File: Configuration/SecurityConfig.java.
-SecurityConfig enables web security and registers a SecurityFilterChain. It permits public access to /, /login, /signup, static CSS/JS/images, and /api/auth/**. All other /api/** endpoints require an authenticated Spring Security context. Other HTML routes are delivered with their controller-level session checks where used.
-
-CSRF configuration: csrf.disable() is explicitly configured. This permits the existing form and stateless API interaction model without a generated CSRF token requirement.
-
-JWT filter placement: the configured JwtAuthenticationFilter is inserted before UsernamePasswordAuthenticationFilter. A valid Bearer token therefore establishes authentication before the authorization rules evaluate protected API paths.
-
-Browser-session handling
-Files: Controller/MappingClass.java, GalleryController.java, MailController.java, templates/navbar.html.
-Successful form login creates an HttpSession and stores username. Gallery and mail routes inspect the session username before rendering their protected views. Logout obtains the existing session without creating a new one and invalidates it. The navbar reads session.username for its greeting.
-
-8. BCRYPT PASSWORD SECURITY
+3. PROJECT FOLDER STRUCTURE
 ---------------------------
 
-Files: Configuration/SecurityConfig.java and Service/UserServiceImpl.java.
+src/main/java/io/herald/MySpringWeb/
 
-SecurityConfig exposes PasswordEncoder as a BCryptPasswordEncoder bean. When a user is saved, UserServiceImpl checks whether the password is already BCrypt-formatted and, when it is raw, calls passwordEncoder.encode before persistence. During browser and REST login, authenticate retrieves the user by username and calls passwordEncoder.matches(rawPassword, storedHash).
+* MySpringWebApplication.java - starts Spring Boot and enables background work.
+* Configuration/ - Spring Security, JWT, and Cloudinary setup.
+* Controller/ - normal website controllers that return HTML pages.
+* RController/ - REST API controllers that return JSON/text responses.
+* Service/ - user, password, and email business work.
+* Repository/ - database access interfaces.
+* Model/ - database entity classes.
+* Exception/ - custom exceptions and shared error handling.
 
-This means the database receives a BCrypt hash rather than the raw registration password. BCrypt uses a per-hash salt and computational work factor, so the stored hash is appropriate for password verification without recovering or storing the original password.
+src/main/resources/
 
-9. JWT AUTHENTICATION
----------------------
+* application.properties - application settings and environment-variable placeholders.
+* templates/ - Thymeleaf HTML pages.
+* static/css/styles.css - website styling.
 
-Files: Configuration/JWUtil.java, JwtAuthenticationFilter.java, SecurityConfig.java; RController/AuthRestController.java.
+Other important files:
 
-Token generation: POST /api/auth/login accepts username and password request parameters. AuthRestController delegates credential checking to UserService.authenticate. On success it calls JWUtil.generateToken and returns JSON containing token.
+* pom.xml - Maven dependencies and Java version.
+* Dockerfile - Docker build and application startup steps.
+* render.yaml - Render web-service settings and required secret names.
+* src/test/resources/application.properties - H2 test configuration.
+* src/test/java/io/herald/MySpringWeb/MySpringWebApplicationTests.java - Spring Boot context test.
 
-JWUtil: the component reads jwt.secret and jwt.expiration, creates an HMAC signing key from the secret, and creates a compact HS256 token with subject=username, issued-at time, and expiration time. It parses claims to extract the subject and expiration, then validates subject equality and expiry.
 
-Protected API access: JwtAuthenticationFilter extends OncePerRequestFilter, so it executes once per request. It reads Authorization, accepts the Bearer prefix, parses the token subject, validates the token, creates UsernamePasswordAuthenticationToken, attaches request details, and stores it in SecurityContextHolder. SecurityConfig then allows the authenticated request through the /api/** authorization rule.
-
-JWT authentication flow
-
-Client -> POST /api/auth/login (username, password)
-       -> AuthRestController
-       -> UserServiceImpl.authenticate
-       -> UserRepository.findByUsername + BCrypt matches
-       -> JWUtil.generateToken (HS256, subject, issue time, expiry)
-       -> 200 OK {"token":"<JWT>"}
-
-Client -> GET/POST/PUT/DELETE /api/**
-       -> Authorization: Bearer <JWT>
-       -> JwtAuthenticationFilter extracts token
-       -> JWUtil parses and validates subject/expiry/signature
-       -> SecurityContextHolder receives authenticated principal
-       -> SecurityFilterChain authorizes /api/**
-       -> REST controller executes and returns ResponseEntity
-
-10. EMAIL INTEGRATION
----------------------
-
-Files: Service/EmailService.java, Service/UserServiceImpl.java, src/main/resources/application.properties, render.yaml.
-
-Spring Boot's mail starter provides JavaMailSender. The production properties set SMTP host smtp.gmail.com, port 587, authentication, and STARTTLS. MAIL_USERNAME and MAIL_PASSWORD are environment-backed values.
-
-Registration-email workflow:
-
-SignupController -> UserServiceImpl.saveUser -> UserRepository.save
-                 -> EmailService.sendRegistrationEmail
-                 -> SimpleMailMessage (from, recipient, subject, plain-text body)
-                 -> JavaMailSender -> configured SMTP server -> recipient inbox
-
-The message is personalized with the registered username and uses the subject "Welcome to MySpringWeb". EmailService contains delivery exception handling local to the send operation.
-
-11. CLOUDINARY AND IMAGE UPLOAD INTEGRATION
---------------------------------------------
-
-Files: Configuration/CloudinaryConfig.java, Controller/GalleryController.java, Model/ImageTable2.java, Repository/Image2Repository.java, templates/galleryPage2.html.
-
-CloudinaryConfig reads CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET through application properties and creates one Cloudinary bean. Its secure setting requests HTTPS delivery URLs.
-
-Cloud upload workflow:
-
-User selects image in galleryPage2.html
-        -> multipart/form-data POST /gallery2
-        -> GalleryController receives MultipartFile
-        -> image.getBytes()
-        -> cloudinary.uploader().upload(bytes, empty options)
-        -> Cloudinary response map
-        -> secure_url extracted
-        -> ImageTable2.imageUrl assigned and saved by Image2Repository
-        -> controller reloads cloudImages from database
-        -> galleryPage2.html renders image.getImageUrl() in img elements
-
-The project also implements a local-gallery workflow in GalleryController: MultipartFile bytes are Base64 encoded, stored in ImageTable, associated to the current session user where found, placed in session.totalImages, and rendered by galleryPage.html as a data URL.
-
-12. REST API DEVELOPMENT AND RESPONSEENTITY
--------------------------------------------
-
-REST controller files: RController/RControllerClass.java and AuthRestController.java.
-
-API endpoints:
-* POST /api/auth/login — authenticates credentials and returns {"token": "..."}; returns 401 UNAUTHORIZED for invalid credentials.
-* GET /api/hello — returns 200 OK and "Hello World".
-* GET /api/users — returns 200 OK with List<UserTable>, or 204 NO CONTENT when the list is empty.
-* GET /api/users/{id} — returns 200 OK with a user; a nonexistent id is translated to 404 NOT FOUND.
-* POST /api/users — accepts a JSON UserTable and returns 201 CREATED with "Saved Successfully".
-* PUT /api/users/{id} — accepts JSON user details, updates mutable fields, and returns 200 OK with the saved user.
-* DELETE /api/users/{id} — removes an existing user and returns 204 NO CONTENT.
-
-Request and response strategy
-@RequestMapping("/api") supplies the common resource root. @GetMapping, @PostMapping, @PutMapping, and @DeleteMapping express HTTP intent. @RequestBody accepts JSON entity payloads; @PathVariable reads resource identifiers; @RequestParam accepts login parameters. ResponseEntity gives each endpoint explicit response bodies and status codes: 200, 201, 204, 400, 401, 404, and 500 are represented by the success and exception flows.
-
-13. EXCEPTION HANDLING
-----------------------
-
-Files: Exception/GlobalExceptionHandler.java and UserNotFoundException.java.
-
-GlobalExceptionHandler uses @ControllerAdvice and @ExceptionHandler methods to create consistent HTTP error outcomes:
-* UserNotFoundException -> 404 NOT FOUND with the exception message.
-* ConstraintViolationException -> 400 BAD REQUEST with a joined "Validation Error" message.
-* Any other Exception -> 500 INTERNAL SERVER ERROR with an error message.
-
-This centralizes REST error translation instead of duplicating response construction inside every endpoint. UserNotFoundException represents the explicit absent-user case used by user GET, update, and delete actions.
-
-14. TESTING ASSETS AND API TESTING SCOPE
-----------------------------------------
-
-Files: src/test/java/io/herald/MySpringWeb/MySpringWebApplicationTests.java and src/test/resources/application.properties.
-
-The project contains a SpringBootTest context-load test and a dedicated H2 test configuration. The test properties isolate test persistence in jdbc:h2:mem:testdb, use create-drop schema management, and provide test-safe placeholder values for JWT, Cloudinary, and mail settings. The REST endpoint structure supports API-client verification of credential login, authenticated CRUD calls using Authorization: Bearer <token>, user CRUD status codes, and the multipart gallery endpoints described above.
-
-15. MAVEN BUILD SYSTEM
-----------------------
-
-File: pom.xml.
-
-Maven manages Spring Boot, MVC, JPA, validation, Thymeleaf, Security, Mail, MySQL, Cloudinary, JWT, Lombok, H2 testing, and test dependencies. The Spring Boot Maven plugin packages an executable application JAR; maven-compiler-plugin configures Lombok annotation processing.
-
-Standard build lifecycle commands:
-* mvn clean removes prior build output.
-* mvn compile resolves compile dependencies and compiles Java sources.
-* mvn package runs the package lifecycle and produces the deployable JAR in target.
-
-The Docker build uses mvn clean package -DskipTests to create the production artifact in its build stage.
-
-16. DOCKER IMPLEMENTATION
--------------------------
-
-File: Dockerfile.
-
-The Dockerfile is a two-stage build:
-1. maven:3.9-eclipse-temurin-17 copies pom.xml and src, then runs mvn clean package -DskipTests.
-2. eclipse-temurin:17-jre-alpine receives only the generated JAR as /app/app.jar, exposes port 8080, and starts it with java -jar app.jar.
-
-This creates a runtime image that contains the application artifact and a compact Java 17 runtime rather than the Maven build tooling.
-
-17. RENDER DEPLOYMENT IMPLEMENTATION
-------------------------------------
-
-Files: render.yaml, Dockerfile, application.properties.
-
-render.yaml defines a Render web service named my-spring-web, uses the Docker environment, tracks the main branch, and exposes environment-variable entries without committing their secret values. Runtime configuration resolves database, mail, JWT, and Cloudinary credentials from the Render service environment. Docker starts the packaged application on its configured port 8080.
-
-Required Render variables declared by the blueprint: DB_URL, DB_USERNAME, DB_PASSWORD, MAIL_USERNAME, MAIL_PASSWORD, JWT_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.
-
-18. SECURITY IMPLEMENTATION
----------------------------
-
-Credential and secret management
-application.properties uses ${...} placeholders for all database passwords, SMTP credentials, JWT secret, and Cloudinary credentials. render.yaml declares these values as sync: false, so deployment configuration accepts values without storing them in repository source.
-
-Authentication and access control
-BCrypt protects stored account passwords. The browser login flow verifies the BCrypt hash before creating a session. The API login flow issues a short-lived-by-configuration, HS256-signed JWT; protected /api/** endpoints require authentication and the JWT filter establishes that authentication from a valid Bearer token.
-
-Validation and error boundaries
-User entity constraints express required username, password, and valid email data. Registration and login controllers reject empty required form fields before processing. Controller advice uses distinct HTTP errors for missing users, validation violations, and unexpected failures. Image and mail integrations handle I/O/delivery exceptions at their integration calls.
-
-Transport-aware image delivery
-Cloudinary is configured with secure=true, and GalleryController persists Cloudinary's secure_url for HTTPS image rendering.
-
-19. COMPLETE USER AND TECHNICAL FLOW
-------------------------------------
-
-Browser registration and login flow
-
-Visitor opens /
-  -> firstPage.html links to /signup or /login
-  -> signup.html submits username, email, password
-  -> SignupController checks populated fields and duplicate username
-  -> UserServiceImpl BCrypt-hashes the password
-  -> UserRepository/Hibernate saves UserTable
-  -> EmailService sends registration email through SMTP
-  -> redirect to /login with signup confirmation
-  -> login.html submits username and password
-  -> UserServiceImpl retrieves user and BCrypt verifies password
-  -> MappingClass creates HTTP session with username
-  -> redirect to /home; Thymeleaf renders the user list
-
-Gallery flow
-
-Authenticated browser user opens /gallery
-  -> controller checks session username
-  -> uploads multipart image
-  -> bytes are Base64 encoded and stored in ImageTable
-  -> session.totalImages is refreshed
-  -> galleryPage.html renders Base64 image data
-
-Cloud gallery flow
-
-User opens /gallery2
-  -> gallery page loads ImageTable2 URL records
-  -> upload form posts a multipart image
-  -> Cloudinary accepts image bytes
-  -> secure_url is saved as ImageTable2.imageUrl
-  -> gallery page renders the saved HTTPS URL
-
-API flow
-
-API client posts credentials to /api/auth/login
-  -> BCrypt credential verification
-  -> JWT response
-  -> client passes Authorization: Bearer token to /api/users
-  -> JwtAuthenticationFilter validates and populates SecurityContext
-  -> SecurityFilterChain allows authenticated /api request
-  -> REST controller/service/repository performs operation
-  -> ResponseEntity returns status and payload; ControllerAdvice translates raised errors
-
-20. FILES AND MODULES SUMMARY
+4. HOW THE APPLICATION STARTS
 -----------------------------
 
-Application and configuration
-* src/main/java/io/herald/MySpringWeb/MySpringWebApplication.java — Spring Boot entry point.
-* src/main/java/io/herald/MySpringWeb/Configuration/SecurityConfig.java — security rules, BCrypt bean, JWT filter registration.
-* src/main/java/io/herald/MySpringWeb/Configuration/JWUtil.java — JWT generation, claim extraction, and validation.
-* src/main/java/io/herald/MySpringWeb/Configuration/JwtAuthenticationFilter.java — Bearer-token request authentication.
-* src/main/java/io/herald/MySpringWeb/Configuration/CloudinaryConfig.java — Cloudinary bean and secure credential setup.
-* src/main/resources/application.properties — production port, database, mail, JWT, and Cloudinary properties.
-* src/test/resources/application.properties — H2 test database and test-only integration values.
+Starting file: src/main/java/io/herald/MySpringWeb/MySpringWebApplication.java
 
-Domain and persistence
-* Model/UserTable.java — user entity, validation constraints, image relationships.
-* Model/ImageTable.java — Base64 local-image entity and user association.
-* Model/ImageTable2.java — Cloudinary secure URL entity and user association.
-* Repository/UserRepository.java — user JPA CRUD and username lookup.
-* Repository/ImageRepository.java — local-image JPA CRUD.
-* Repository/Image2Repository.java — Cloudinary-image JPA CRUD.
+The main method runs SpringApplication.run(MySpringWebApplication.class, args).
 
-Services and errors
-* Service/UserService.java — user business-operation contract.
-* Service/UserServiceImpl.java — user persistence, BCrypt, and registration-email orchestration.
-* Service/EmailService.java — SMTP registration email composition and dispatch.
-* Exception/UserNotFoundException.java — domain-specific absent-user error.
-* Exception/GlobalExceptionHandler.java — centralized HTTP exception responses.
+Spring Boot then:
 
-Web delivery
-* Controller/MappingClass.java — landing, login, home, and logout routes.
-* Controller/SignupController.java — signup rendering and registration processing.
-* Controller/UserController.java — browser user edit, update, and delete actions.
-* Controller/GalleryController.java — local and Cloudinary image gallery routes.
-* Controller/MailController.java — session-aware mail page route.
-* RController/RControllerClass.java — protected REST user CRUD API.
-* RController/AuthRestController.java — public JWT-login API.
+1. Finds Java classes under io.herald.MySpringWeb.
+2. Creates classes marked with @Controller, @Service, @Repository, @Component, and @Configuration.
+3. Reads application.properties.
+4. Connects to the configured database.
+5. Creates Hibernate/JPA entity mappings.
+6. Sets up Spring Security, the JWT filter, mail sender, and Cloudinary client.
+7. Starts the application on port 8080.
 
-Templates and styling
-* templates/firstPage.html — landing page.
-* templates/signup.html — registration form.
-* templates/login.html — login form and feedback.
-* templates/home.html — user-list dashboard.
-* templates/editPage.html — user edit form.
-* templates/galleryPage.html — Base64 image upload/display.
-* templates/galleryPage2.html — Cloudinary image upload/display.
-* templates/navbar.html — shared navigation/session greeting.
-* templates/mailPage.html — mail view.
-* templates/nextPage.html — auxiliary navigation page.
-* templates/login2.html — alternate login view.
-* static/css/styles.css — shared login/signup visual styling.
+Local URL: http://localhost:8080/
 
-Build, deployment, and test support
-* pom.xml — dependency, Java 17, plugin, and packaging configuration.
-* Dockerfile — multi-stage JAR image build and runtime startup.
-* render.yaml — Render Docker service and secret-variable declarations.
-* mvnw and mvnw.cmd — Maven wrapper launchers.
-* src/test/java/io/herald/MySpringWeb/MySpringWebApplicationTests.java — application context test.
-* Test.java and src/main/java/io/herald/MySpringWeb/test/maptest.java — standalone Java mapping/collection exploration sources.
 
-21. EIGHT COURSE-CONCEPT COVERAGE AREAS
-----------------------------------------
+5. CREDENTIALS: WHAT TO ADD AND WHERE TO STORE THEM
+----------------------------------------------------
 
-The implemented project demonstrates the requested eight course-aligned concept areas:
-1. Java foundations: classes, objects, interfaces, inheritance, exceptions, streams, collections/maps, I/O, and Java 17 runtime.
-2. Layered application design: MVC presentation/controllers, services, repositories, models, configuration, and exception advice.
-3. Spring Boot and JPA: Boot startup, dependency injection, component stereotypes, JPA entities, Hibernate mapping, repositories, validation, and CRUD.
-4. Thymeleaf MVC: template rendering, forms, model/session attributes, lists, navigation, and multipart forms.
-5. Security and email: HTTP authorization rules, session handling, BCrypt password verification, JavaMailSender, SMTP, and STARTTLS configuration.
-6. REST and error responses: REST mappings, JSON binding, ResponseEntity status design, custom exceptions, and global error translation.
-7. JWT: token generation, HS256 signing, bearer-token filtering, OncePerRequestFilter, SecurityContextHolder, and protected APIs.
-8. Cloud and deployment: Cloudinary multipart upload/secure URLs, Maven packaging, Docker multi-stage build, Render configuration, and environment-provided secrets.
+Important rule: never put real passwords, API keys, or secrets in application.properties or Git. application.properties contains only placeholders. The real values are read from environment variables when the application starts.
 
-22. PROJECT ACHIEVEMENTS AND FINAL STATUS
------------------------------------------
+File: src/main/resources/application.properties
 
-Completed implementation areas: 14
-1. Spring Boot layered web application startup.
-2. User registration with duplicate-name check.
-3. BCrypt password hashing and verification.
-4. Browser login, session, logout, and session-aware routes.
-5. User listing, edit, update, and delete web actions.
-6. JPA/Hibernate persistence with user-image relationships.
-7. Thymeleaf forms, dynamic lists, navigation, and multipart presentation.
-8. REST user CRUD endpoints with ResponseEntity status codes.
-9. JWT issuance and bearer-token protection for /api/**.
-10. Centralized custom/validation/general exception responses.
-11. SMTP registration-email service.
-12. Local Base64 image gallery.
-13. Cloudinary image upload and secure-URL gallery.
-14. Maven/Docker/Render deployment configuration with environment-backed secrets.
+Database credentials
+~~~~~~~~~~~~~~~~~~~~
 
-Technology summary: Java 17, Spring Boot 4.1.0, Spring MVC, Spring Data JPA/Hibernate, Thymeleaf, Spring Security, BCrypt, JJWT, Spring Mail, MySQL/H2, Cloudinary, Maven, Docker, and Render.
+The application reads:
 
-Architecture summary: N-tier MVC architecture routes HTTP requests through controllers, services, repositories, Hibernate entities, and the configured database/external services. Configuration and exception layers supply cross-cutting behavior.
+DB_URL=${DB_URL}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
 
-Security summary: BCrypt password hashes, JWT bearer authentication for APIs, explicit public/protected route rules, server-side browser sessions, field constraints, central error responses, HTTPS Cloudinary URLs, and environment-backed secret configuration are implemented.
+Add these manually:
 
-Testing summary: a Spring Boot context-load test and isolated H2 test properties are present; REST, authentication, email, and upload workflows are explicitly represented by their controller/service implementations and endpoint contracts.
+* DB_URL - JDBC database address. Local MySQL example: jdbc:mysql://localhost:3306/myspringweb
+* DB_USERNAME - database user name, for example root.
+* DB_PASSWORD - database password.
 
-Deployment summary: Maven packaging, a Java 17 multi-stage Docker image, port 8080 exposure, Render Docker-service definition, and declared production environment variables are included.
+Database data location:
 
-Project completion: 100% of the implemented project scope documented in this report.
-Status: READY FOR TESTING | READY FOR SUBMISSION | READY FOR VIVA | READY FOR DEPLOYMENT
+* UserTable stores user id, username, email, and the BCrypt password hash.
+* ImageTable stores local image data as Base64 text.
+* ImageTable2 stores Cloudinary secure HTTPS image URLs.
 
-23. FINAL PROJECT SUMMARY
--------------------------
+Passwords are not stored as plain text. UserServiceImpl uses BCryptPasswordEncoder. The original password is changed to a BCrypt hash before storage. Login compares the password typed by the user with that hash.
 
-MySpringWeb is a complete Spring Boot web application that demonstrates modern Java enterprise development from frontend interaction to deployment configuration. It provides account registration and secure password handling, browser-session access, authenticated REST CRUD operations, JWT bearer authentication, database persistence with entity relationships, Thymeleaf-rendered pages, SMTP registration emails, local and Cloudinary-backed image galleries, centralized API errors, and container-ready deployment assets.
+Mail credentials
+~~~~~~~~~~~~~~~~
 
-The codebase is organized into clear layers that make its request flow understandable and maintainable: controllers handle web/API input, services apply application rules, repositories persist entity state, configuration supplies security and integrations, and templates render the browser interface. External credentials remain runtime configuration rather than source values, while the Docker and Render definitions provide a direct deployment path. This makes the project suitable as a demonstrable full-stack Spring Boot submission and as a foundation for future development.
+The application reads:
+
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+
+SMTP settings already in the project:
+
+* Host: smtp.gmail.com
+* Port: 587
+* SMTP authentication: enabled
+* STARTTLS: enabled
+
+Add manually:
+
+* MAIL_USERNAME - Gmail address that sends welcome email.
+* MAIL_PASSWORD - Gmail App Password.
+
+For Gmail, enable 2-Step Verification first. Create an App Password in Google Account security settings. Use that App Password as MAIL_PASSWORD, not the normal Gmail password.
+
+EmailService now uses MAIL_USERNAME as the sender address. It does not contain a hard-coded sender email.
+
+JWT credentials
+~~~~~~~~~~~~~~~
+
+The application reads:
+
+JWT_SECRET=${JWT_SECRET}
+jwt.expiration=86400000
+
+Add manually:
+
+* JWT_SECRET - a long, random private secret, at least 32 characters.
+
+JWT_SECRET signs API tokens. Keep it private. The configured token lifetime is 86,400,000 milliseconds (24 hours).
+
+Cloudinary credentials
+~~~~~~~~~~~~~~~~~~~~~~
+
+The application reads:
+
+CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+Manual steps:
+
+1. Create/sign in to Cloudinary.
+2. Open the Cloudinary dashboard.
+3. Copy Cloud Name, API Key, and API Secret.
+4. Add them to environment variables with the names above.
+
+Where to enter credentials locally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Open PowerShell in the project folder and enter values before starting the app:
+
+$env:DB_URL="jdbc:mysql://localhost:3306/myspringweb"
+$env:DB_USERNAME="root"
+$env:DB_PASSWORD="your_database_password"
+$env:MAIL_USERNAME="your_email@gmail.com"
+$env:MAIL_PASSWORD="your_gmail_app_password"
+$env:JWT_SECRET="put_a_long_random_secret_here"
+$env:CLOUDINARY_CLOUD_NAME="your_cloud_name"
+$env:CLOUDINARY_API_KEY="your_cloudinary_api_key"
+$env:CLOUDINARY_API_SECRET="your_cloudinary_api_secret"
+
+These values stay only in that PowerShell session. Start the application from the same window.
+
+Where to enter credentials on Render
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the Render service dashboard, open Environment and add the same values. render.yaml already contains all variable names. Enter only values in Render; do not add them to source code or Git.
+
+
+6. DATABASE SETUP
+-----------------
+
+The production project uses a MySQL-compatible database.
+
+Manual steps:
+
+1. Install MySQL or create a cloud MySQL/TiDB database.
+2. Create an empty database, for example:
+
+   CREATE DATABASE myspringweb;
+
+3. Create a database user if required.
+4. Set DB_URL, DB_USERNAME, and DB_PASSWORD.
+5. Start the application.
+
+The project has spring.jpa.hibernate.ddl-auto=update. Hibernate uses it to create/update entity tables at application startup.
+
+Data structure:
+
+UserTable
+* id - generated user id.
+* username - user name.
+* email - user email.
+* password - BCrypt password hash.
+
+ImageTable
+* id - generated local image id.
+* image - Base64 image content.
+* user_id - link to the user.
+
+ImageTable2
+* id - generated cloud image id.
+* imageUrl - secure Cloudinary image URL.
+* user_id - entity relation field.
+
+One user can have many ImageTable records and many ImageTable2 records.
+
+
+7. WEBSITE USER FLOW
+--------------------
+
+Landing page
+~~~~~~~~~~~~
+
+Route: GET /
+Controller: MappingClass.java
+Page: firstPage.html
+
+The visitor sees the first page and can choose Signup or Login.
+
+Signup
+~~~~~~
+
+Route: GET /signup and POST /signup
+Files: SignupController.java, signup.html, UserServiceImpl.java, EmailService.java
+
+Flow:
+
+1. Visitor opens /signup.
+2. signup.html shows username, email, and password fields.
+3. Visitor submits the form.
+4. SignupController checks that values are not empty.
+5. SignupController checks whether the username already exists.
+6. A UserTable object is created.
+7. UserServiceImpl.registerUser saves it.
+8. UserServiceImpl hashes the raw password with BCrypt.
+9. UserRepository saves through JPA/Hibernate.
+10. EmailService starts the welcome email in the background.
+11. Browser redirects to /login with a success message.
+
+Login
+~~~~~
+
+Route: GET /login and POST /login
+Files: MappingClass.java, login.html, UserServiceImpl.java
+
+Flow:
+
+1. User enters username and password.
+2. MappingClass checks that values are present.
+3. UserServiceImpl finds the user by username.
+4. BCrypt compares the typed password with the stored hash.
+5. If correct, an HttpSession is created.
+6. Username is saved as session.username.
+7. Browser redirects to /home.
+
+Home page
+~~~~~~~~~
+
+Route: GET /home
+Files: MappingClass.java, home.html
+
+The controller gets all users through UserService.findAllUsers. home.html uses Thymeleaf th:each to display them and gives Edit/Delete buttons.
+
+Edit user
+~~~~~~~~~
+
+Routes: POST /editUser and POST /updateUser
+Files: UserController.java, editPage.html, home.html
+
+Flow:
+
+1. Click Edit on Home.
+2. UserController finds the selected user by id.
+3. editPage.html opens with username and email.
+4. Change username/email and click Save Changes.
+5. UserController loads the current database record.
+6. It updates username and email only.
+7. The existing BCrypt password and image links stay safe.
+8. Browser returns to Home with a success message.
+
+Delete user
+~~~~~~~~~~~
+
+Route: POST /deleteUser
+File: UserController.java
+
+The controller receives an id, then calls UserService.deleteUser and UserRepository.deleteById.
+
+Logout
+~~~~~~
+
+Route: GET /logout
+File: MappingClass.java
+
+The current HttpSession is invalidated and the browser returns to /login.
+
+
+8. IMAGE GALLERY FLOW
+---------------------
+
+Local gallery
+~~~~~~~~~~~~~
+
+Routes: GET /gallery and POST /gallery
+Files: GalleryController.java, galleryPage.html, ImageTable.java, ImageRepository.java
+
+Flow:
+
+1. A logged-in user opens /gallery.
+2. GalleryController checks session.username.
+3. User selects an image and submits the multipart form.
+4. MultipartFile provides the image bytes.
+5. Bytes are converted to Base64 text.
+6. ImageTable is saved through ImageRepository.
+7. The image is linked to the session user when found.
+8. session.totalImages is refreshed.
+9. galleryPage.html displays Base64 image data.
+
+Cloudinary gallery
+~~~~~~~~~~~~~~~~~~
+
+Routes: GET /gallery2 and POST /gallery2
+Files: GalleryController.java, CloudinaryConfig.java, galleryPage2.html, ImageTable2.java, Image2Repository.java
+
+Flow:
+
+1. User opens /gallery2.
+2. The controller loads saved cloud image records.
+3. User selects an image and posts multipart data.
+4. GalleryController gets bytes from MultipartFile.
+5. It uploads bytes through cloudinary.uploader().upload().
+6. Cloudinary returns an upload result.
+7. GalleryController reads secure_url.
+8. The secure URL is saved in ImageTable2.imageUrl.
+9. galleryPage2.html displays the HTTPS image URL.
+
+CloudinaryConfig sets secure=true, so delivered Cloudinary URLs use HTTPS.
+
+
+9. EMAIL FLOW
+-------------
+
+Files: EmailService.java, UserServiceImpl.java, application.properties
+
+After UserServiceImpl.registerUser saves a new user, it calls EmailService.sendRegistrationEmail.
+
+EmailService:
+
+1. Creates SimpleMailMessage.
+2. Uses MAIL_USERNAME as sender.
+3. Uses the new user's email as receiver.
+4. Adds a welcome subject and message.
+5. Uses JavaMailSender to send through SMTP.
+6. Runs in background using @Async.
+
+STARTTLS is enabled in application.properties for encrypted SMTP transport.
+
+
+10. SECURITY AND PASSWORD PROTECTION
+------------------------------------
+
+Files: SecurityConfig.java, UserServiceImpl.java, JWUtil.java, JwtAuthenticationFilter.java
+
+Spring Security permits public access to:
+
+* /
+* /login
+* /signup
+* /css/**
+* /js/**
+* /images/**
+* /api/auth/**
+
+Spring Security requires authentication for /api/**.
+
+Website pages use browser HttpSession. API clients use JWT Bearer tokens.
+
+BCrypt
+~~~~~~
+
+SecurityConfig creates BCryptPasswordEncoder. UserServiceImpl hashes new raw passwords. Login uses passwordEncoder.matches to compare the typed password with the stored hash. The database does not hold the original password.
+
+JWT
+~~~
+
+Files: JWUtil.java, JwtAuthenticationFilter.java, AuthRestController.java
+
+API login route: POST /api/auth/login
+
+When correct API credentials are given, AuthRestController calls JWUtil.generateToken and returns:
+
+{"token":"JWT_VALUE"}
+
+JWT flow:
+
+API client
+  -> POST /api/auth/login
+  -> BCrypt password check
+  -> JWUtil creates HS256 signed token
+  -> API returns token
+  -> client sends Authorization: Bearer TOKEN_VALUE
+  -> JwtAuthenticationFilter reads/validates token
+  -> SecurityContextHolder stores authenticated username
+  -> Spring Security allows protected /api/** request
+
+JWUtil reads JWT_SECRET and jwt.expiration. It stores the username as token subject, adds issue/expiry times, signs with HS256, and validates the token.
+
+CSRF
+~~~~
+
+SecurityConfig uses csrf.disable(). This is the current setting for the project form/API setup.
+
+
+11. REST API DOCUMENTATION
+--------------------------
+
+Files: RController/RControllerClass.java and RController/AuthRestController.java
+
+Public API:
+
+POST /api/auth/login
+* Request parameters: username and password.
+* Correct credentials: HTTP 200 and JSON token.
+* Incorrect credentials: HTTP 401 UNAUTHORIZED.
+
+Protected API: add this header first:
+
+Authorization: Bearer YOUR_JWT_TOKEN
+
+GET /api/hello
+* HTTP 200, Hello World.
+
+GET /api/users
+* HTTP 200 and all users.
+* HTTP 204 when there are no users.
+
+GET /api/users/{id}
+* HTTP 200 and one user.
+* HTTP 404 when the id is not found.
+
+POST /api/users
+* Receives JSON user data.
+* Creates user and starts welcome email in background.
+* HTTP 201 CREATED.
+
+PUT /api/users/{id}
+* Receives JSON update data.
+* Updates user.
+* HTTP 200 and updated user.
+
+DELETE /api/users/{id}
+* Deletes user.
+* HTTP 204 NO CONTENT.
+
+Example login request:
+
+POST http://localhost:8080/api/auth/login?username=your_username&password=your_password
+
+
+12. ERROR HANDLING AND VALIDATION
+---------------------------------
+
+Files: GlobalExceptionHandler.java and UserNotFoundException.java
+
+The project uses ResponseEntity for clear API response codes:
+
+* 200 OK - successful read, login, or update.
+* 201 CREATED - successful creation.
+* 204 NO CONTENT - empty result or successful delete.
+* 400 BAD REQUEST - validation error.
+* 401 UNAUTHORIZED - invalid API login.
+* 404 NOT FOUND - user not found.
+* 500 INTERNAL SERVER ERROR - unexpected server error.
+
+GlobalExceptionHandler has @ControllerAdvice. This lets the project handle common errors in one place. UserNotFoundException is the custom error for an unavailable user id.
+
+UserTable uses:
+
+* @NotBlank for username.
+* @NotBlank for password.
+* @NotBlank and @Email for email.
+
+
+13. HOW THE SPRING LAYERS WORK
+------------------------------
+
+Browser or API client
+        |
+        v
+HTML page or JSON request
+        |
+        v
+Controller / REST Controller
+        |
+        v
+Service
+        |
+        v
+Repository
+        |
+        v
+Hibernate / JPA
+        |
+        v
+Database
+
+Presentation layer
+* Files: templates/*.html and static/css/styles.css.
+* Shows forms, tables, image galleries, links, and messages.
+* Thymeleaf reads controller values using th:each, th:text, th:action, th:value, th:href, and th:src.
+
+Controller layer
+* Files: Controller/*.java and RController/*.java.
+* Receives browser/API requests.
+* Normal controllers return HTML view names.
+* REST controllers return ResponseEntity responses.
+
+Service layer
+* Files: UserService.java, UserServiceImpl.java, EmailService.java.
+* Handles user save/find/delete, BCrypt hashing, authentication, and welcome email work.
+
+Repository layer
+* Files: UserRepository.java, ImageRepository.java, Image2Repository.java.
+* Uses Spring Data JPA for save, findById, findAll, deleteById, and findByUsername.
+
+Model/database layer
+* Files: UserTable.java, ImageTable.java, ImageTable2.java.
+* Defines database columns and user-image relations.
+
+
+14. JAVA AND SPRING CONCEPTS USED
+---------------------------------
+
+Classes/objects: UserTable, ImageTable, ImageTable2, controllers, services, filters, and configuration classes are Java classes. Controllers create user/image objects when needed.
+
+Interfaces: UserService is implemented by UserServiceImpl. Repository interfaces extend JpaRepository.
+
+Inheritance:
+* JwtAuthenticationFilter extends OncePerRequestFilter.
+* UserNotFoundException extends RuntimeException.
+* Repositories inherit CRUD methods from JpaRepository.
+
+Dependency injection: @Autowired injects UserService, repositories, PasswordEncoder, JavaMailSender, Cloudinary, and JWUtil.
+
+Configuration/beans: @Configuration is used in SecurityConfig and CloudinaryConfig. @Bean creates PasswordEncoder, SecurityFilterChain, and Cloudinary objects.
+
+File handling: GalleryController receives MultipartFile uploads. It either stores Base64 content locally or sends bytes to Cloudinary.
+
+Stream handling: GlobalExceptionHandler uses Java Streams and Collectors.joining to combine validation messages.
+
+JVM/runtime: the project uses Java 17. Docker also runs the packaged JAR on Java 17 Eclipse Temurin.
+
+
+15. MANUAL LOCAL SETUP FROM START TO FINISH
+-------------------------------------------
+
+1. Install Java 17.
+2. Install/start MySQL, or create a cloud MySQL-compatible database.
+3. Create an empty database, for example myspringweb.
+4. Create Gmail App Password if welcome email will be used.
+5. Create a Cloudinary account if cloud image upload will be used.
+6. Create a long random JWT secret.
+7. Open PowerShell in this project folder.
+8. Set DB_URL, DB_USERNAME, DB_PASSWORD, MAIL_USERNAME, MAIL_PASSWORD, JWT_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.
+9. Build and start with the included Maven wrapper:
+
+   .\mvnw.cmd clean package
+   .\mvnw.cmd spring-boot:run
+
+10. Open http://localhost:8080/.
+11. Create a test account through /signup.
+12. Sign in through /login.
+13. Edit a user from Home.
+14. Test local image upload at /gallery.
+15. Test Cloudinary upload at /gallery2.
+16. Test API login and protected API routes using Postman or another API tool.
+
+The test settings in src/test/resources/application.properties use H2 in memory. This keeps test database work separate from production credentials.
+
+
+16. DOCKER
+----------
+
+File: Dockerfile
+
+The Dockerfile has two stages.
+
+Build stage:
+1. Uses maven:3.9-eclipse-temurin-17.
+2. Copies pom.xml and src.
+3. Runs mvn clean package -DskipTests.
+
+Run stage:
+1. Uses eclipse-temurin:17-jre-alpine.
+2. Copies the generated JAR to /app/app.jar.
+3. Exposes port 8080.
+4. Runs java -jar app.jar.
+
+Example commands:
+
+docker build -t my-spring-web .
+docker run -p 8080:8080 --env-file .env my-spring-web
+
+Keep .env private and do not commit it. It should use the credential names from section 5.
+
+
+17. RENDER DEPLOYMENT
+---------------------
+
+File: render.yaml
+
+Render configuration:
+
+* Type: web service.
+* Name: my-spring-web.
+* Environment: Docker.
+* Branch: main.
+* Plan: free.
+
+Manual deployment:
+
+1. Push the project to a Git repository.
+2. Create a Render Web Service from the repository, or use Render Blueprint.
+3. Render reads render.yaml and uses Dockerfile.
+4. Open Render Environment settings.
+5. Add every secret from section 5.
+6. Deploy.
+7. Read Render logs and confirm Spring Boot starts.
+8. Test signup, login, edit, API login, and gallery routes on the Render URL.
+
+render.yaml uses sync: false for secret variables. Their values are entered in the Render dashboard, not stored in the project source.
+
+
+18. TESTING CHECKLIST
+---------------------
+
+Website checks:
+
+* Open /.
+* Open /signup and create an account.
+* Confirm signup quickly redirects to login.
+* Confirm email arrives when correct Gmail settings are used.
+* Log in.
+* Confirm Home shows users.
+* Click Edit, change username/email, and save.
+* Confirm edit message appears and data stays after refresh.
+* Log out.
+* Upload a local gallery image.
+* Upload a Cloudinary gallery image.
+
+API checks:
+
+* POST /api/auth/login with correct credentials and check token response.
+* Use Authorization: Bearer TOKEN for GET /api/users.
+* Test GET /api/users/{id}.
+* Test POST, PUT, and DELETE /api/users.
+* Test invalid token access to protected API.
+
+Build verification completed after the performance and edit changes:
+
+* Command: .\mvnw.cmd test
+* Result: BUILD SUCCESS
+* Spring Boot context test: 1 test run, 0 failures, 0 errors.
+
+
+19. FINAL SUMMARY
+-----------------
+
+MySpringWeb is a full Spring Boot project that connects browser pages, Java controllers, business services, a database, email delivery, JWT API security, and Cloudinary image storage.
+
+Complete flow:
+
+Signup form
+  -> controller checks values
+  -> BCrypt hashes password
+  -> database stores user
+  -> background email starts
+  -> user signs in
+  -> browser session is created
+  -> user can view/edit users and upload images
+  -> API clients can request JWT tokens
+  -> JWT protects /api/** routes
+  -> images are stored locally as Base64 or in Cloudinary as secure URLs
+  -> Docker and Render provide a deployment path
+
+All sensitive values are outside source code in environment variables. The improved code no longer makes signup wait for email delivery and safely keeps saved user passwords/data during edit operations.

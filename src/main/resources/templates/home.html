@@ -7,6 +7,7 @@
 <body>
 <div th:insert="navbar.html"></div>
 <h1>Welcome to the home page.</h1>
+<p th:if="${message}" th:text="${message}"></p>
 <hr>
 
 <table class="table">
@@ -21,13 +22,13 @@
 <td th:text="${user.getId()}"></td>
 <td th:text="${user.getUsername()}"></td>
         <td>
-            <form method="post" action="editUser">
+            <form method="post" th:action="@{/editUser}">
 <input type="hidden" th:value="${user.getId()}" name="id">
 <input type="submit" value="Edit this User">
             </form>
         </td>
         <td>
-            <form method="post" action="deleteUser">
+            <form method="post" th:action="@{/deleteUser}">
              <input type="hidden" th:value="${user.getId()}" name="id">
                 <input type="submit" value="Delete this User">
             </form>

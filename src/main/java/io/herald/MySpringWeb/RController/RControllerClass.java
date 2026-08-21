@@ -68,7 +68,7 @@ public class RControllerClass {
      */
     @PostMapping("/users")
     public ResponseEntity<String> saveUser(@RequestBody UserTable user) {
-        userService.saveUser(user);
+        userService.registerUser(user);
         return new ResponseEntity<>("Saved Successfully", HttpStatus.CREATED);
     }
 

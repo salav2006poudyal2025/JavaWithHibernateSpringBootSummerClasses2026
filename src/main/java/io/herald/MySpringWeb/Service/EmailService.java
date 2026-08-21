@@ -1,8 +1,10 @@
 package io.herald.MySpringWeb.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,18 +16,22 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
     /**
      * Composes and sends a welcome registration email to a newly signed-up user.
      * @param toEmail The recipient's email address.
      * @param username The recipient's username for personalization.
      */
+    @Async
     public void sendRegistrationEmail(String toEmail, String username) {
         // Validate destination email string
         if (toEmail != null && !toEmail.isEmpty()) {
             SimpleMailMessage message = new SimpleMailMessage();
             
-            // Should match the SMTP authenticated user in properties
-            message.setFrom("np03cs4a240047@heraldcollege.edu.np");
+            // Use the authenticated SMTP account configured by MAIL_USERNAME.
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Welcome to MySpringWeb");
             

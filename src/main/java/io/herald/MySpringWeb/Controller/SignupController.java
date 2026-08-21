@@ -59,8 +59,8 @@ public class SignupController {
         uc.setPassword(password); // Will be hashed securely within UserService implementation
         uc.setEmail(email);
 
-        // Save the newly registered user to the database
-        userService.saveUser(uc);
+        // Save the new account. Its email is sent asynchronously, so signup can redirect promptly.
+        userService.registerUser(uc);
 
         // Store a one-time message that is displayed after the redirect to login.
         redirectAttributes.addFlashAttribute("signupSuccess", "Account created. Please sign in.");

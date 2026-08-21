@@ -17,6 +17,13 @@ public interface UserService {
     UserTable saveUser(UserTable user);
 
     /**
+     * Creates a new user and starts the welcome-email process.
+     * @param user The new user to persist.
+     * @return The persisted user object.
+     */
+    UserTable registerUser(UserTable user);
+
+    /**
      * Retrieves a user by their primary key.
      * @param id The ID to search for.
      * @return An Optional containing the user if found.
