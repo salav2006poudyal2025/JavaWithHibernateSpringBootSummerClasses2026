@@ -5,21 +5,21 @@ services:
     plan: free
     branch: main
     envVars:
-      - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://gateway01.us-west-2.prod.aws.tidbcloud.com:4000/JavaDB
-      - key: SPRING_DATASOURCE_USERNAME
-        value: SMumwStnVSYG4og.root
-      - key: SPRING_DATASOURCE_PASSWORD
-        value: IuspiUMnmvmg35cO
-      - key: SPRING_MAIL_USERNAME
-        value: np03cs4a240047@heraldcollege.edu.np
-      - key: SPRING_MAIL_PASSWORD
-        value: "resy aprl ruue hkoj"
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
       - key: JWT_SECRET
-        value: a782d8d315b8300a9907dbeafcca839585dff5d7f7cb23dd62fe5338b25e0b44
+        sync: false
       - key: CLOUDINARY_CLOUD_NAME
-        value: qw4y79pc
+        sync: false
       - key: CLOUDINARY_API_KEY
-        value: "319832791335966"
+        sync: false
       - key: CLOUDINARY_API_SECRET
-        value: cnNTNDCjxYdzns5geKmvPAN4Ggo
+        sync: false
