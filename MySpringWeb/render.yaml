@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: my-spring-web
+    env: docker
+    plan: free
+    branch: main
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://gateway01.us-west-2.prod.aws.tidbcloud.com:4000/JavaDB
+      - key: SPRING_DATASOURCE_USERNAME
+        value: SMumwStnVSYG4og.root
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: IuspiUMnmvmg35cO
+      - key: SPRING_MAIL_USERNAME
+        value: np03cs4a240047@heraldcollege.edu.np
+      - key: SPRING_MAIL_PASSWORD
+        value: "resy aprl ruue hkoj"
+      - key: JWT_SECRET
+        value: a782d8d315b8300a9907dbeafcca839585dff5d7f7cb23dd62fe5338b25e0b44
+      - key: CLOUDINARY_URL
+        value: cloudinary://319832791335966:cnNTNDCjxYdzns5geKmvPAN4Ggo@qw4y79pc
