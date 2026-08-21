@@ -1,21 +1,13 @@
-# Use official OpenJDK 17 image as the base image
-FROM openjdk:17-jdk-slim
-
-# Set working directory inside the container
+# Build stage
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
-
-# Install Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-
-# Copy the pom.xml and source code
 COPY pom.xml .
 COPY src ./src
-
-# Package the application skipping tests
 RUN mvn clean package -DskipTests
 
-# Expose port 8080
+# Run stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Run the JAR file
-CMD ["sh", "-c", "java -jar target/*.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
