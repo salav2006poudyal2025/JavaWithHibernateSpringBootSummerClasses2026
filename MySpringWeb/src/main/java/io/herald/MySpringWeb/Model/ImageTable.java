@@ -14,6 +14,10 @@ public class ImageTable {
     @Column(columnDefinition = "MEDIUMBLOB")
     private String image;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserTable user;
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getImage() { return image; }

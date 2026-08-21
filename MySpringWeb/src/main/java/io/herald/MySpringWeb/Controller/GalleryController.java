@@ -6,6 +6,8 @@ import io.herald.MySpringWeb.Model.ImageTable;
 import io.herald.MySpringWeb.Model.ImageTable2;
 import io.herald.MySpringWeb.Repository.Image2Repository;
 import io.herald.MySpringWeb.Repository.ImageRepository;
+import io.herald.MySpringWeb.Repository.UserRepository;
+import io.herald.MySpringWeb.Model.UserTable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,8 @@ public class GalleryController {
     private Cloudinary cloudinary;
     @Autowired
     private Image2Repository image2Repo;
+    @Autowired
+    private UserRepository userRepo;
 
     @GetMapping("/gallery")
     public String galleryGet(HttpServletRequest req, Model m) {
@@ -57,9 +61,14 @@ try {
     String imgString = Base64.getEncoder().encodeToString(imgBytes);
 
     ImageTable img = new ImageTable();
-   img.setImage(imgString);
+    img.setImage(imgString);
+    
+    String username = (String) session.getAttribute("username");
+    if (username != null) {
+        userRepo.findByUsername(username).ifPresent(img::setUser);
+    }
 
-   imageRepo.save(img);
+    imageRepo.save(img);
 }
 
 catch (IOException e)
@@ -89,7 +98,9 @@ session.setAttribute("totalImages",imageRepo.findAll());
 
         ImageTable2 img=new ImageTable2();
         img.setImageUrl(imgUrl);
-image2Repo.save(img);
+        
+        // If session is used in gallery2, we can't get it since session is not a parameter here. Let's not break it if they don't have session in gallery2Post
+        image2Repo.save(img);
         }
         catch(IOException e)
         {
