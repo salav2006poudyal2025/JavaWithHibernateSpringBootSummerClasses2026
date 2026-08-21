@@ -1,7 +1,7 @@
 package io.herald.MySpringWeb.Controller;
 
 import io.herald.MySpringWeb.Model.UserTable;
-import io.herald.MySpringWeb.Repository.UserRepository;
+import io.herald.MySpringWeb.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,13 +16,13 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-private UserRepository userRepository;
+    private UserService userService;
 
     @PostMapping("deleteUser")
     public String deleteUser(@RequestParam("id") int id , Model m)
     {
-        userRepository.deleteById(id);
-m.addAttribute("totalUsers",userRepository.findAll());
+        userService.deleteUser(id);
+m.addAttribute("totalUsers",userService.findAllUsers());
 
         return "home";
     }
@@ -31,7 +31,7 @@ m.addAttribute("totalUsers",userRepository.findAll());
     @PostMapping("/editUser")
     public String editUser(@RequestParam ("id") int id, Model m)
     {
-        Optional<UserTable> ut= userRepository.findById(id);
+        Optional<UserTable> ut= userService.findById(id);
 //Optional helps to check if there is a required object or not.
         if(ut.isPresent())
         {
@@ -40,7 +40,7 @@ m.addAttribute("user",user);
 return "editPage";
         }
 
-        m.addAttribute("totalUsers",userRepository.findAll());
+        m.addAttribute("totalUsers",userService.findAllUsers());
         return "home";
     }
 
@@ -54,9 +54,9 @@ return "editPage";
         //instead of @RequestParam, we can directly use:
         //@ModelAttribute name_of_table obj_name
 
-        userRepository.save(user);
+        userService.saveUser(user);
 
-        m.addAttribute("totalUsers",userRepository.findAll());
+        m.addAttribute("totalUsers",userService.findAllUsers());
         return "home";
     }
 }

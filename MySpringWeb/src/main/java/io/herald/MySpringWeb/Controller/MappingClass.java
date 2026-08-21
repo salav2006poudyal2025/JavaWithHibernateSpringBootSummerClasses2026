@@ -1,13 +1,12 @@
 package io.herald.MySpringWeb.Controller;
 
 import io.herald.MySpringWeb.Model.UserTable;
-import io.herald.MySpringWeb.Repository.UserRepository;
+import io.herald.MySpringWeb.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -17,7 +16,7 @@ import java.util.List;
 public class MappingClass {
 
     @Autowired
-    private UserRepository uRepo;
+    private UserService userService;
 
 @GetMapping("/") //url pattern for mapping
     public String openFirstPage()
@@ -44,13 +43,11 @@ public class MappingClass {
 String username= request.getParameter("username");
 String password = request.getParameter("password");
         System.out.println(username);
-        System.out.println(password);
+        System.out.println(username);
 
-   String hashPassword = DigestUtils.md5DigestAsHex(password.getBytes());
-
-        if(uRepo.existsByUsernameAndPassword(username,hashPassword) )
+        if(userService.authenticate(username, password) )
         {
-            List<UserTable> totalUsers = uRepo.findAll();
+            List<UserTable> totalUsers = userService.findAllUsers();
             m.addAttribute("totalUsers", totalUsers);
 
             HttpSession session = request.getSession();
@@ -70,7 +67,7 @@ String password = request.getParameter("password");
     @GetMapping("/home")
     public String homeGet(Model m)
     {
-m.addAttribute("totalUsers",uRepo.findAll());
+m.addAttribute("totalUsers",userService.findAllUsers());
         return "home";
     }
 
