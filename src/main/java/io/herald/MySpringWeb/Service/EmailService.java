@@ -1,11 +1,12 @@
 package io.herald.MySpringWeb.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service handling out-bound email transmissions via SMTP.
@@ -13,11 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    private final JavaMailSender mailSender;
+    private final String fromEmail;
+
+    public EmailService(JavaMailSender mailSender, @Value("${spring.mail.username}") String fromEmail) {
+        this.mailSender = mailSender;
+        this.fromEmail = fromEmail;
+    }
 
     /**
      * Composes and sends a welcome registration email to a newly signed-up user.
@@ -26,26 +31,23 @@ public class EmailService {
      */
     @Async
     public void sendRegistrationEmail(String toEmail, String username) {
-        // Validate destination email string
-        if (toEmail != null && !toEmail.isEmpty()) {
-            SimpleMailMessage message = new SimpleMailMessage();
-            
-            // Use the authenticated SMTP account configured by MAIL_USERNAME.
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Welcome to MySpringWeb");
-            
-            // Build simple plain text message
-            message.setText("Hello " + username + ",\n\nYou have successfully registered!\n\nBest Regards,\nMySpringWeb Team");
-            
-            try {
-                // Dispatch the email synchronously
-                mailSender.send(message);
-                System.out.println("Email sent successfully to: " + toEmail);
-            } catch (Exception e) {
-                // Log delivery failures instead of breaking the transaction
-                System.err.println("Error sending email to " + toEmail + ": " + e.getMessage());
-            }
+        if (toEmail == null || toEmail.isBlank()) {
+            logger.warn("Registration email was skipped because the recipient address is blank.");
+            return;
+        }
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Welcome to MySpringWeb");
+        message.setText("Hello " + username + ",\n\nYou have successfully registered!\n\nBest Regards,\nMySpringWeb Team");
+
+        try {
+            mailSender.send(message);
+            logger.info("Registration email sent successfully to {}.", toEmail);
+        } catch (Exception e) {
+            // Registration has already completed; retain the failure in logs for investigation.
+            logger.error("Unable to send registration email to {}: {}", toEmail, e.getMessage(), e);
         }
     }
 }
