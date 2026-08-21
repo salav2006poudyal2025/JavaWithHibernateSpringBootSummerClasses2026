@@ -7,10 +7,9 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.List;
 
 /**
  * Main Controller handling general application routing including home, login, and static pages.
@@ -28,7 +27,7 @@ public class MappingClass {
     @GetMapping("/")
     public String openFirstPage()
     {
-        return "firstPage.html";
+        return "firstPage";
     }
 
     /**
@@ -38,7 +37,7 @@ public class MappingClass {
     @GetMapping("/nextPage")
     public String OpenNextPage()
     {
-        return "nextPage.html";
+        return "nextPage";
     }
 
     /**
@@ -48,7 +47,7 @@ public class MappingClass {
     @GetMapping("/login")
     public String loginPage()
     {
-        return "login.html";
+        return "login";
     }
 
     /**
@@ -58,30 +57,30 @@ public class MappingClass {
      * @return View name for home if successful, else reloads login.
      */
     @PostMapping("/login")
-    public String loginPost(HttpServletRequest request, Model m)
+    public String loginPost(HttpServletRequest request, RedirectAttributes redirectAttributes)
     {
         // When form data submits a POST request, HttpServletRequest obtains those data as parameters.
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         
-        System.out.println("Login attempt for user: " + username);
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            redirectAttributes.addFlashAttribute("message", "Please enter both your username and password.");
+            return "redirect:/login";
+        }
 
         // Authenticate credentials via the service layer
         if(userService.authenticate(username, password))
         {
-            // Populate the user list for the admin dashboard view
-            List<UserTable> totalUsers = userService.findAllUsers();
-            m.addAttribute("totalUsers", totalUsers);
-
             // Establish the user session
             HttpSession session = request.getSession();
             session.setAttribute("username", username);
             
-            return "home.html";
+            return "redirect:/home";
         }
 
-        // Authentication failed, return to login page
-        return "login.html";
+        // Authentication failed, redirect so the browser has a clean login URL.
+        redirectAttributes.addFlashAttribute("message", "Invalid username or password.");
+        return "redirect:/login";
     }
 
     /**
@@ -104,10 +103,12 @@ public class MappingClass {
     @GetMapping("/logout")
     public String logout(HttpServletRequest request)
     {
-        HttpSession session = request.getSession();
-        session.invalidate(); // Destroys the session securely
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // Destroys the session securely
+        }
 
-        return "login";
+        return "redirect:/login";
     }
 
 }

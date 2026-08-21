@@ -5,9 +5,9 @@ import io.herald.MySpringWeb.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controller handling user registration and signup flows via frontend forms.
@@ -24,7 +24,7 @@ public class SignupController {
      */
     @GetMapping("/signup")
     public String signup() {
-        return "signup.html";
+        return "signup";
     }
 
     /**
@@ -35,12 +35,23 @@ public class SignupController {
      * @return View name for login upon successful registration.
      */
     @PostMapping("/signup")
-    public String postSignup(HttpServletRequest request, Model m)
+    public String postSignup(HttpServletRequest request, RedirectAttributes redirectAttributes)
     {
         // Extract raw form parameters
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String email = request.getParameter("email");
+
+        if (username == null || username.isBlank() || email == null || email.isBlank()
+                || password == null || password.isBlank()) {
+            redirectAttributes.addFlashAttribute("message", "Please complete every sign-up field.");
+            return "redirect:/signup";
+        }
+
+        if (userService.findByUsername(username).isPresent()) {
+            redirectAttributes.addFlashAttribute("message", "That username is already in use.");
+            return "redirect:/signup";
+        }
 
         // Construct entity and populate with form data
         UserTable uc = new UserTable();
@@ -51,13 +62,10 @@ public class SignupController {
         // Save the newly registered user to the database
         userService.saveUser(uc);
 
-        System.out.println("Registered new user: " + username);
-
-        // Add a success message to display on the login page after routing
-        m.addAttribute("signupSuccess", "You have successfully signed up! Please Login!");
+        // Store a one-time message that is displayed after the redirect to login.
+        redirectAttributes.addFlashAttribute("signupSuccess", "Account created. Please sign in.");
         
-        // Return to the login view so the user can authenticate
-        return "login.html";
+        return "redirect:/login";
     }
 
 }
