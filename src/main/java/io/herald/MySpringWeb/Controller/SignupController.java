@@ -9,42 +9,55 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/**
+ * Controller handling user registration and signup flows via frontend forms.
+ */
 @Controller
-//Controller handles http requests and responses
 public class SignupController {
 
     @Autowired
     private UserService userService;
 
-
-@GetMapping("/signup")
+    /**
+     * Displays the signup HTML page.
+     * @return View name for signup.
+     */
+    @GetMapping("/signup")
     public String signup() {
-    return "signup.html";
-}
+        return "signup.html";
+    }
 
-@PostMapping("/signup")
+    /**
+     * Handles the POST submission from the signup form.
+     * Creates a new UserTable entity and delegates to UserService for saving.
+     * @param request Provides access to form parameters.
+     * @param m The Model to transport success attributes to the login view.
+     * @return View name for login upon successful registration.
+     */
+    @PostMapping("/signup")
     public String postSignup(HttpServletRequest request, Model m)
-{
-String username=request.getParameter("username");
-String password=request.getParameter("password");
-String email=request.getParameter("email");
+    {
+        // Extract raw form parameters
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
 
-UserTable uc = new UserTable();
-uc.setUsername(username);
-uc.setPassword(password); // Will be hashed in UserService
-uc.setEmail(email);
+        // Construct entity and populate with form data
+        UserTable uc = new UserTable();
+        uc.setUsername(username);
+        uc.setPassword(password); // Will be hashed securely within UserService implementation
+        uc.setEmail(email);
 
-userService.saveUser(uc);
+        // Save the newly registered user to the database
+        userService.saveUser(uc);
 
-    System.out.println(username);
+        System.out.println("Registered new user: " + username);
 
-    //Model ko m bhanne object le message lera gako -> login.html lai
-    //message lai attribute bhaninchha model ko bhasa ma
-
-    //m.addAttribute(msgtitle,msg);
-    m.addAttribute("signupSuccess","You have successfully signed up! Please Login!");
-    return "login.html";
-}
-
+        // Add a success message to display on the login page after routing
+        m.addAttribute("signupSuccess", "You have successfully signed up! Please Login!");
+        
+        // Return to the login view so the user can authenticate
+        return "login.html";
+    }
 
 }
