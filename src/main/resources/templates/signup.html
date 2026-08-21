@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" action="signup">
+                <form method="post" th:action="@{/signup}">
                     <div class="input-group form-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -64,7 +64,7 @@
             </div>
             <div class="card-footer">
                 <div class="d-flex justify-content-center links">
-                    Already have an account?<a href="login">Sign In</a>
+                    Already have an account?<a th:href="@{/login}">Sign In</a>
                 </div>
             </div>
         </div>
