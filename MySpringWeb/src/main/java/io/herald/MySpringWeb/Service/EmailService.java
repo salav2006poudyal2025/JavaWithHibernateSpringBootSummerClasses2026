@@ -14,7 +14,7 @@ public class EmailService {
     public void sendRegistrationEmail(String toEmail, String username) {
         if (toEmail != null && !toEmail.isEmpty()) {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("your-email@gmail.com");
+            message.setFrom("np03cs4a240047@heraldcollege.edu.np");
             message.setTo(toEmail);
             message.setSubject("Welcome to MySpringWeb");
             message.setText("Hello " + username + ",\n\nYou have successfully registered!\n\nBest Regards,\nMySpringWeb Team");

@@ -2,71 +2,19 @@
           MYSPRINGWEB - COMPLETE MANUAL SETUP & RENDER DEPLOYMENT GUIDE
 ================================================================================
 
-This document outlines every manual action you need to take to fully configure, 
-test, and deploy your MySpringWeb application to Render. Because some steps 
-require private credentials (like passwords and secret keys), they could not be 
-completed automatically by the AI.
+This document outlines the remaining manual actions you need to take to fully 
+configure, test, and deploy your MySpringWeb application to Render.
+
+Note: Your Database, Email (SMTP), and Cloudinary configurations have already 
+been successfully integrated into the application's source code!
 
 Follow this guide from top to bottom.
 
 --------------------------------------------------------------------------------
-STEP 1: DATABASE CONFIGURATION
+STEP 1: JWT SECURITY SETUP
 --------------------------------------------------------------------------------
-Your application currently connects to a TiDB cloud database. 
-
-File to edit: src/main/resources/application.properties
-
-1. Verify your database connection string, username, and password. 
-2. If you want to use a local MySQL database for testing before deployment, 
-   update the properties to point to your local MySQL server:
-   
-   spring.datasource.url=jdbc:mysql://localhost:3306/your_database_name
-   spring.datasource.username=root
-   spring.datasource.password=your_mysql_password
-   
-   * Note: Render does not provide a free MySQL database. If deploying to Render,
-     you MUST use a remote database like TiDB, Aiven (MySQL), or Render's PostgreSQL.
-     Since your project uses MySQL, TiDB is a perfect free remote option.
-
---------------------------------------------------------------------------------
-STEP 2: EMAIL SERVICE CONFIGURATION (GMAIL)
---------------------------------------------------------------------------------
-The application sends a welcome email when a new user signs up. This requires a 
-valid Gmail account and an "App Password".
-
-File to edit: src/main/resources/application.properties
-
-1. Go to your Google Account Settings -> Security.
-2. Enable "2-Step Verification" (required for App Passwords).
-3. Search for "App passwords" in the settings search bar.
-4. Create a new App Password (name it "MySpringWeb"). It will generate a 16-character code.
-5. In application.properties, update the following lines:
-
-   spring.mail.username=your-actual-email@gmail.com
-   spring.mail.password=the-16-character-app-password-no-spaces
-
-6. File to edit: src/main/java/io/herald/MySpringWeb/Service/EmailService.java
-   Update the "setFrom" email address on Line 16 to match your email.
-   message.setFrom("your-actual-email@gmail.com");
-
---------------------------------------------------------------------------------
-STEP 3: CLOUDINARY CONFIGURATION (IMAGE UPLOAD)
---------------------------------------------------------------------------------
-Your Cloudinary setup is already written into the configuration file. 
-However, having secrets hardcoded in Java classes is a security risk.
-
-File to edit: src/main/java/io/herald/MySpringWeb/Configuration/CloudinaryConfig.java
-
-1. Verify that the "cloud_name", "api_key", and "api_secret" match your actual
-   Cloudinary dashboard credentials.
-2. (Optional but recommended): Move these to application.properties and use @Value 
-   to inject them, similar to how JWT is configured.
-
---------------------------------------------------------------------------------
-STEP 4: JWT SECURITY SETUP
---------------------------------------------------------------------------------
-A dummy JWT secret was provided in application.properties. For production, you 
-MUST change this to a secure random string.
+A dummy JWT secret is currently hardcoded in application.properties. For 
+production, you MUST change this to a secure random string.
 
 File to edit: src/main/resources/application.properties
 
@@ -76,7 +24,7 @@ File to edit: src/main/resources/application.properties
    jwt.secret=YOUR_NEW_SECURE_64_CHAR_HEX_STRING
 
 --------------------------------------------------------------------------------
-STEP 5: GIT & GITHUB SETUP
+STEP 2: GIT & GITHUB SETUP
 --------------------------------------------------------------------------------
 Render deploys applications directly from GitHub. You must push your code there.
 
@@ -86,15 +34,16 @@ Render deploys applications directly from GitHub. You must push your code there.
 3. Add all files to staging:
    git add .
 4. Commit your changes:
-   git commit -m "Initial commit with enterprise features"
-5. Go to GitHub.com and create a new Private or Public repository.
+   git commit -m "Initial commit with enterprise features and configurations"
+5. Go to GitHub.com and create a new Private repository (Private is recommended 
+   since your credentials are currently hardcoded in the source files).
 6. Link your local repo to GitHub:
    git remote add origin https://github.com/your-username/your-repo-name.git
 7. Push your code:
    git push -u origin main (or master)
 
 --------------------------------------------------------------------------------
-STEP 6: RENDER DEPLOYMENT SETUP
+STEP 3: RENDER DEPLOYMENT SETUP
 --------------------------------------------------------------------------------
 Your project already has a Dockerfile configured for Render deployment.
 
@@ -110,32 +59,35 @@ Your project already has a Dockerfile configured for Render deployment.
    - Instance Type: Free (if available) or Starter.
 
 --------------------------------------------------------------------------------
-STEP 7: RENDER ENVIRONMENT VARIABLES (CRITICAL)
+STEP 4: RENDER ENVIRONMENT VARIABLES (CRITICAL)
 --------------------------------------------------------------------------------
-You should not expose hardcoded passwords on GitHub. In Render, you can override 
-application.properties values using Environment Variables.
+While your passwords and keys are currently hardcoded in your project files, it 
+is highly recommended to use Environment Variables in Render. This allows you to 
+securely change configurations without editing code.
 
 In the Render Web Service creation page, scroll down to "Advanced" -> "Environment Variables".
 Add the following keys and values to override your local properties:
 
 1. Key: SPRING_DATASOURCE_URL
-   Value: jdbc:mysql://gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/test
+   Value: jdbc:mysql://gateway01.us-west-2.prod.aws.tidbcloud.com:4000/JavaDB
 2. Key: SPRING_DATASOURCE_USERNAME
-   Value: (Your TiDB Username)
+   Value: SMumwStnVSYG4og.root
 3. Key: SPRING_DATASOURCE_PASSWORD
-   Value: (Your TiDB Password)
+   Value: IuspiUMnmvmg35cO
 4. Key: SPRING_MAIL_USERNAME
-   Value: (Your Gmail Address)
+   Value: np03cs4a240047@heraldcollege.edu.np
 5. Key: SPRING_MAIL_PASSWORD
-   Value: (Your 16-character Gmail App Password)
+   Value: resy aprl ruue hkoj
 6. Key: JWT_SECRET
-   Value: (Your Secure JWT Secret)
+   Value: (Your Secure 64-character JWT Secret generated in Step 1)
+7. Key: CLOUDINARY_URL
+   Value: cloudinary://319832791335966:cnNTNDCjxYdzns5geKmvPAN4Ggo@qw4y79pc
 
 * By using these environment variables, Spring Boot will automatically prioritize 
-  them over whatever is written in application.properties!
+  them over whatever is written in the local source code files!
 
 --------------------------------------------------------------------------------
-STEP 8: DEPLOY AND VALIDATE
+STEP 5: DEPLOY AND VALIDATE
 --------------------------------------------------------------------------------
 1. Click "Create Web Service" on Render.
 2. Render will pull your GitHub repository, build the Docker image using the 
@@ -145,7 +97,8 @@ STEP 8: DEPLOY AND VALIDATE
 
 Post-Deployment Checklist:
 [ ] Open the Render URL in your browser and verify the home page loads.
-[ ] Go to /signup, register a new user, and verify you receive the welcome email.
+[ ] Go to /signup, register a new user, and verify you receive the welcome email 
+    from np03cs4a240047@heraldcollege.edu.np.
 [ ] Log in at /login with the new credentials.
 [ ] Test the Image Upload to ensure Cloudinary is working.
 [ ] Open Postman and test the /api/auth/login endpoint to retrieve a JWT token.
