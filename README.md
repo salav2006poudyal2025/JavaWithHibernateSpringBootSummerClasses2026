@@ -1,243 +1,234 @@
 # MySpringWeb
 
-A full-stack Java Spring Boot web application demonstrating Enterprise Web Development concepts including:
+> A full-stack Java Spring Boot application built to demonstrate enterprise web development with authentication, REST APIs, database persistence, email integration, cloud image storage, containerization, and cloud deployment.
 
-- User Registration & Login
-- Session-Based Authentication
-- BCrypt Password Security
-- JWT Authentication & Authorization
-- REST APIs with ResponseEntity
-- Spring Security
-- JPA/Hibernate ORM
-- MySQL/TiDB Persistence
-- SMTP Email Service
-- Cloudinary Image Upload
-- Thymeleaf Frontend
-- Docker Containerization
-- Render Deployment
-
-This project was developed as part of Enterprise Web Systems Development and combines multiple enterprise technologies into a single real-world application.
+[![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?style=flat-square&logo=springboot)](https://spring.io/projects/spring-boot)
+[![Spring Security](https://img.shields.io/badge/Security-Spring%20Security-green?style=flat-square&logo=springsecurity)](https://spring.io/projects/spring-security)
+[![JWT](https://img.shields.io/badge/Auth-JWT-purple?style=flat-square)](https://jwt.io/)
+[![Docker](https://img.shields.io/badge/Container-Docker-blue?style=flat-square&logo=docker)](https://www.docker.com/)
+[![Deployment](https://img.shields.io/badge/Deploy-Render-46E3B7?style=flat-square)](https://render.com/)
 
 ---
 
-# Project Overview
+## 📌 Overview
 
-MySpringWeb provides both:
+**MySpringWeb** is a full-stack Java web application developed as part of an **Enterprise Web Systems Development** project.
 
-### Browser-Based Application
-- Signup
-- Login
-- Logout
-- User Management
-- Image Gallery
-- Email Services
+The application combines a browser-based interface with REST APIs and demonstrates how different enterprise technologies work together in a layered architecture.
 
-### REST API Application
-- JWT Login
-- Protected CRUD APIs
-- JSON Responses
-- ResponseEntity Status Management
+### What it includes
 
-The system follows a layered architecture:
+- User registration, login, and logout
+- Session-based authentication
+- BCrypt password hashing
+- JWT authentication and protected REST APIs
+- Spring Security
+- Spring MVC and Spring Boot
+- JPA/Hibernate ORM
+- MySQL, TiDB, and H2 database support
+- Gmail SMTP email integration
+- Cloudinary image uploads
+- Thymeleaf frontend
+- Docker containerization
+- Render deployment
+- Postman API testing
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication & Security
+
+- Session-based login and logout
+- BCrypt password hashing
+- JWT generation and validation
+- Protected REST API endpoints
+- Spring Security integration
+- Environment-based secret configuration
+
+### 👤 User Management
+
+- Create users
+- View users
+- Update users
+- Delete users
+- Database persistence through JPA/Hibernate
+
+### 📧 Email Service
+
+- Gmail SMTP integration
+- Registration/welcome emails
+- Asynchronous email sending through the configured mail service
+
+### 🖼️ Image Management
+
+The project demonstrates two image-storage approaches:
+
+**Local database gallery**
+- Upload images
+- Store Base64 image data
+- Display images in the gallery
+
+**Cloudinary gallery**
+- Upload images to Cloudinary
+- Store secure image URLs
+- Display uploaded images
+
+### 🌐 REST API
+
+- JWT-protected endpoints
+- CRUD operations
+- `ResponseEntity` based HTTP responses
+- HTTP status handling
+- Exception handling
+
+### 🚀 Deployment
+
+- Docker support
+- Render deployment
+- Environment variable configuration
+- GitHub-based deployment workflow
+
+---
+
+## 🏗️ Architecture
+
+The application follows a layered/N-tier architecture that separates responsibilities between controllers, services, repositories, and the database.
 
 ```text
-Client (Browser/Postman)
-          │
-          ▼
-     Controllers
-          │
-          ▼
-       Services
-          │
-          ▼
-    Repositories
-          │
-          ▼
-      Database
+                    ┌─────────────────────┐
+                    │   Browser / Postman │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     Controllers     │
+                    │ MVC / REST APIs     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      Services       │
+                    │   Business Logic    │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    Repositories     │
+                    │    JPA / Hibernate  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      Database       │
+                    │ MySQL / TiDB / H2  │
+                    └─────────────────────┘
 ```
 
----
-
-# Main Features
-
-## Authentication & Security
-
-- Session-Based Login
-- Session Logout
-- JWT Authentication
-- JWT Protected APIs
-- Spring Security
-- BCrypt Password Encryption
-
-## User Management
-
-- Create User
-- View User
-- Update User
-- Delete User
-
-## Email Integration
-
-- Gmail SMTP
-- Registration Email
-- Asynchronous Email Sending
-
-## Image Management
-
-### Local Database Gallery
-
-- Upload Images
-- Store Base64 Data
-- Display Gallery
-
-### Cloudinary Gallery
-
-- Upload to Cloudinary
-- Store Secure URLs
-- Display Uploaded Images
-
-## REST APIs
-
-- Secure Endpoints
-- ResponseEntity Support
-- Proper HTTP Status Codes
-- Exception Handling
-
-## Deployment
-
-- Docker Support
-- Render Deployment
-- Environment Variable Configuration
+This structure improves **separation of concerns, maintainability, scalability, and code organization**.
 
 ---
 
-# Technology Stack
+## 🛠️ Technology Stack
 
-## Backend
-
-- Java 17
-- Spring Boot
-- Spring MVC
-- Spring Security
-- Spring Data JPA
-- Hibernate
-
-## Database
-
-- MySQL
-- TiDB
-- H2 Database
-
-## Frontend
-
-- HTML
-- CSS
-- Thymeleaf
-
-## Security
-
-- BCrypt
-- JWT
-
-## Third-Party Integrations
-
-- Gmail SMTP
-- Cloudinary
-
-## DevOps
-
-- Maven
-- Docker
-- Render
-- GitHub
+| Area | Technologies |
+|---|---|
+| Language | Java 17 |
+| Backend | Spring Boot, Spring MVC |
+| Security | Spring Security, BCrypt, JWT |
+| ORM | Spring Data JPA, Hibernate |
+| Database | MySQL, TiDB, H2 |
+| Frontend | HTML, CSS, Thymeleaf |
+| Email | Gmail SMTP |
+| Image Storage | Cloudinary |
+| Build Tool | Maven |
+| API Testing | Postman |
+| Version Control | Git, GitHub |
+| Containerization | Docker |
+| Deployment | Render |
 
 ---
 
-# Project Structure
+## 📁 Project Structure
 
 ```text
-MySpringWeb
+MySpringWeb/
 │
 ├── pom.xml
 ├── Dockerfile
 ├── render.yaml
 │
-├── src
-│   ├── main
-│   │   ├── java
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── Configuration/
+│   │   │   ├── Controller/
+│   │   │   ├── RController/
+│   │   │   ├── Service/
+│   │   │   ├── Repository/
+│   │   │   ├── Model/
+│   │   │   ├── Exception/
+│   │   │   └── MySpringWebApplication
 │   │   │
-│   │   ├── Configuration
-│   │   ├── Controller
-│   │   ├── RController
-│   │   ├── Service
-│   │   ├── Repository
-│   │   ├── Model
-│   │   ├── Exception
-│   │   └── MySpringWebApplication
+│   │   └── resources/
+│   │       ├── templates/
+│   │       ├── static/
+│   │       └── application.properties
 │   │
-│   └── resources
-│       ├── templates
-│       ├── static
-│       └── application.properties
+│   └── test/
 │
-└── test
+└── README.md
 ```
 
 ---
 
-# Database Design
+## 🗄️ Database Design
 
-## UserTable
+### UserTable
 
 Stores:
 
 - User ID
 - Username
 - Email
-- BCrypt Password
+- BCrypt password
 
-## ImageTable
+### ImageTable
 
-Stores:
-
-- Local Image Data
-- Base64 Encoded Image
+Stores locally uploaded image data, including Base64 encoded content.
 
 Relationship:
 
 ```text
 UserTable
-     │
-     └── One To Many
-              │
-              ▼
-         ImageTable
+    │
+    └── One To Many
+             │
+             ▼
+        ImageTable
 ```
 
-## ImageTable2
+### ImageTable2
 
-Stores:
-
-- Cloudinary URL
+Stores Cloudinary image URLs.
 
 Relationship:
 
 ```text
 UserTable
-     │
-     └── One To Many
-              │
-              ▼
+    │
+    └── One To Many
+             │
+             ▼
         ImageTable2
 ```
 
 ---
 
-# Authentication System
+## 🔑 Authentication
 
-## Session Authentication
-
-### Flow
+### Session Authentication
 
 ```text
 User Login
@@ -245,190 +236,168 @@ User Login
     ▼
 Verify Username
     │
+    ▼
 Verify Password
     │
     ▼
 Create Session
     │
+    ▼
 Store Username
     │
+    ▼
 Access Protected Page
 ```
 
-### Current Status
+**Status:** ✅ Implemented
 
-✅ Implemented
+Current areas identified for improvement:
 
-### Improvement Needed
+- Route protection
+- Session fixation protection
+- CSRF protection
 
-- Route Protection
-- Session Fixation Protection
-- CSRF Protection
+### BCrypt Password Security
 
----
-
-# BCrypt Password Security
-
-### Registration
+Passwords are encoded before being stored in the database.
 
 ```text
 Raw Password
-      │
-      ▼
+     │
+     ▼
 BCrypt Encoder
-      │
-      ▼
+     │
+     ▼
 Hashed Password
-      │
-      ▼
+     │
+     ▼
 Database
 ```
 
-### Login
+During login, the supplied password is checked against the stored BCrypt hash.
 
-```text
-User Password
-      │
-      ▼
-BCrypt Match
-      │
-      ▼
-Authentication Result
-```
-
-### Status
-
-✅ Implemented
+**Status:** ✅ Implemented
 
 ---
 
-# JWT Authentication
+## 🪪 JWT Authentication
 
-## JWT Flow
+JWT is used for stateless authentication of REST APIs.
+
+### JWT Flow
 
 ```text
 Login Request
-      │
-      ▼
+     │
+     ▼
 Validate User
-      │
-      ▼
+     │
+     ▼
 Generate JWT
-      │
-      ▼
+     │
+     ▼
 Return Token
-      │
-      ▼
+     │
+     ▼
 Protected API Request
-      │
-      ▼
+     │
+     ▼
 Validate JWT
-      │
-      ▼
+     │
+     ▼
 Allow Access
 ```
 
-### Components
+### Main Components
 
-- AuthRestController
-- JWUtil
-- JwtAuthenticationFilter
-- SecurityConfig
+- `AuthRestController`
+- `JWUtil`
+- `JwtAuthenticationFilter`
+- `SecurityConfig`
 
-### Status
+**Status:** ✅ Implemented
 
-✅ Implemented
+### Possible Improvements
 
-### Improvements
-
-- Role-Based Authorization
-- Refresh Tokens
-- Token Revocation
+- Role-based authorization
+- Refresh tokens
+- Token revocation
 
 ---
 
-# Email Service
+## 📧 Email Integration
 
-## Registration Email Flow
+### Registration Email Flow
 
 ```text
 Register User
-      │
-      ▼
+     │
+     ▼
 Save User
-      │
-      ▼
+     │
+     ▼
 Trigger Email
-      │
-      ▼
+     │
+     ▼
 JavaMailSender
-      │
-      ▼
+     │
+     ▼
 Gmail SMTP
 ```
 
 ### Features
 
-- Welcome Email
-- Async Sending
+- Welcome/registration email
+- Asynchronous email sending
 
-### Status
-
-✅ Implemented
-
-### Manual Testing Required
-
-- Generate Gmail App Password
-- Verify Delivery
+**Status:** ✅ Implemented
 
 ---
 
-# Cloudinary Integration
+## ☁️ Cloudinary Integration
 
-## Upload Flow
+Images can be uploaded to Cloudinary and the resulting secure URL is stored in the database.
 
 ```text
 Upload Image
-      │
-      ▼
+     │
+     ▼
 Controller
-      │
-      ▼
+     │
+     ▼
 Cloudinary
-      │
-      ▼
+     │
+     ▼
 secure_url
-      │
-      ▼
+     │
+     ▼
 Database
-      │
-      ▼
+     │
+     ▼
 Gallery Display
 ```
 
-### Status
+**Status:** ✅ Implemented
 
-✅ Implemented
+### Possible Improvements
 
-### Improvements
-
-- File Validation
-- Ownership Validation
-- Delete Feature
+- File type and size validation
+- Ownership validation
+- Image deletion support
 
 ---
 
-# REST API Documentation
+## 🔌 REST API
 
-## Authentication
+### Authentication
 
-### Login
+#### Login
 
 ```http
 POST /api/auth/login
 ```
 
-Response:
+Example response:
 
 ```json
 {
@@ -436,88 +405,62 @@ Response:
 }
 ```
 
----
+### Users
 
-## Users
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/users` | Get all users |
+| `GET` | `/api/users/{id}` | Get a user by ID |
+| `POST` | `/api/users` | Create a user |
+| `PUT` | `/api/users/{id}` | Update a user |
+| `DELETE` | `/api/users/{id}` | Delete a user |
 
-### Get All Users
+### Authentication Header
 
-```http
-GET /api/users
-```
-
-### Get User By ID
-
-```http
-GET /api/users/{id}
-```
-
-### Create User
+Protected endpoints expect:
 
 ```http
-POST /api/users
-```
-
-### Update User
-
-```http
-PUT /api/users/{id}
-```
-
-### Delete User
-
-```http
-DELETE /api/users/{id}
+Authorization: Bearer <token>
 ```
 
 ---
 
-# HTTP Status Codes Used
+## 📡 HTTP Status Codes
 
 | Code | Meaning |
-|--------|--------|
-| 200 | OK |
-| 201 | Created |
-| 204 | No Content |
-| 401 | Unauthorized |
-| 404 | Not Found |
-| 500 | Internal Server Error |
+|---:|---|
+| `200` | OK |
+| `201` | Created |
+| `204` | No Content |
+| `401` | Unauthorized |
+| `404` | Not Found |
+| `500` | Internal Server Error |
 
 ---
 
-# Security Implementation
+## ⚙️ Setup & Configuration
 
-## Current Security Features
+### Prerequisites
 
-✅ BCrypt Passwords
+Make sure the following are installed:
 
-✅ JWT Authentication
+- Java 17
+- Maven
+- Git
+- MySQL or another supported database
+- Docker (optional)
+- Postman (recommended for API testing)
 
-✅ Spring Security
+### 1. Clone the Repository
 
-✅ Environment Variable Secrets
+```bash
+git clone <your-repository-url>
+cd MySpringWeb
+```
 
-✅ Protected API Endpoints
+### 2. Configure Environment Variables
 
-## Current Security Issues
-
-❌ CSRF Disabled
-
-❌ No Roles
-
-❌ No Ownership Checks
-
-❌ Password Hash Exposure Risk
-
-❌ Missing Request Validation
-
----
-
-# Setup Guide
-
-## 2. Configure Environment Variables
-
-### Database
+#### Database
 
 ```text
 DB_URL
@@ -525,20 +468,20 @@ DB_USERNAME
 DB_PASSWORD
 ```
 
-### Email
+#### Email
 
 ```text
 MAIL_USERNAME
 MAIL_PASSWORD
 ```
 
-### JWT
+#### JWT
 
 ```text
 JWT_SECRET
 ```
 
-### Cloudinary
+#### Cloudinary
 
 ```text
 CLOUDINARY_CLOUD_NAME
@@ -546,56 +489,56 @@ CLOUDINARY_API_KEY
 CLOUDINARY_API_SECRET
 ```
 
+> Keep secrets out of GitHub. Use environment variables or a local configuration file that is excluded from version control.
+
 ---
 
-# Gmail SMTP Setup
+## 📬 Gmail SMTP Setup
 
-1. Enable Two-Factor Authentication
-2. Generate Gmail App Password
-3. Configure:
+1. Enable two-factor authentication on the Gmail account.
+2. Generate a Gmail App Password.
+3. Configure the mail credentials:
 
 ```text
 MAIL_USERNAME=your_email@gmail.com
-
 MAIL_PASSWORD=your_app_password
 ```
 
-4. Register User
-5. Verify Email Delivery
+4. Register a test user.
+5. Verify that the email is delivered successfully.
 
 ---
 
-# Cloudinary Setup
+## ☁️ Cloudinary Setup
 
-1. Create Cloudinary Account
-2. Get Credentials
+1. Create a Cloudinary account.
+2. Obtain your Cloudinary credentials.
+3. Configure:
 
 ```text
 CLOUDINARY_CLOUD_NAME
-
 CLOUDINARY_API_KEY
-
 CLOUDINARY_API_SECRET
 ```
 
-3. Configure Environment Variables
-4. Upload Test Image
+4. Start the application.
+5. Upload a test image and verify that the image URL is stored and displayed.
 
 ---
 
-# JWT Setup
+## 🔐 JWT Setup
 
-Generate secure secret:
+Configure a strong JWT secret:
 
 ```text
 JWT_SECRET=LongRandomSecretAtLeast32Bytes
 ```
 
-Test:
+Then test the authentication flow:
 
-1. Login
-2. Get JWT
-3. Call API with:
+1. Log in.
+2. Receive the JWT.
+3. Send the token with protected API requests.
 
 ```http
 Authorization: Bearer <token>
@@ -603,74 +546,81 @@ Authorization: Bearer <token>
 
 ---
 
-# Render Deployment
+## 🐳 Docker
 
-## Required Variables
+The project includes Docker support for consistent application packaging and deployment.
 
-```text
-DB_URL
+The Docker configuration is intended to:
 
-DB_USERNAME
+- Use a Java 17 environment
+- Install/build the application with Maven
+- Copy the project into the image
+- Expose port `8080`
+- Run the generated JAR
 
-DB_PASSWORD
+Example build/run workflow:
 
-MAIL_USERNAME
-
-MAIL_PASSWORD
-
-JWT_SECRET
-
-CLOUDINARY_CLOUD_NAME
-
-CLOUDINARY_API_KEY
-
-CLOUDINARY_API_SECRET
+```bash
+docker build -t myspringweb .
+docker run -p 8080:8080 myspringweb
 ```
-
-## Steps
-
-1. Push Code to GitHub
-2. Create Render Blueprint
-3. Connect Repository
-4. Configure Variables
-5. Deploy
-6. Verify Application
 
 ---
 
-# Postman Testing
+## 🚀 Render Deployment
 
-## Step 1
+The project includes Render deployment configuration.
 
-Login:
+### Required Environment Variables
+
+```text
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+MAIL_USERNAME
+MAIL_PASSWORD
+JWT_SECRET
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+```
+
+### Deployment Steps
+
+1. Push the project to GitHub.
+2. Create a Render Blueprint/Web Service.
+3. Connect the GitHub repository.
+4. Configure the required environment variables.
+5. Deploy the application.
+6. Verify the public application URL and API endpoints.
+
+Render provides HTTPS, a public URL, GitHub integration, and automatic redeployment.
+
+---
+
+## 🧪 Postman Testing
+
+### Step 1 — Login
 
 ```http
 POST /api/auth/login
 ```
 
-Store JWT.
+Store the returned JWT.
 
----
-
-## Step 2
-
-Call Protected API:
+### Step 2 — Call a Protected API
 
 ```http
 GET /api/users
 ```
 
-Header:
+Add:
 
 ```http
 Authorization: Bearer <token>
 ```
 
----
-
-## Step 3
-
-Verify CRUD
+### Step 3 — Test CRUD Operations
 
 - Create User
 - Read User
@@ -679,10 +629,10 @@ Verify CRUD
 
 ---
 
-# Feature Validation Report
+## 📊 Feature Status
 
 | Feature | Status |
-|----------|----------|
+|---|---|
 | Registration | ✅ Implemented |
 | Login | ✅ Implemented |
 | Logout | ✅ Implemented |
@@ -703,41 +653,76 @@ Verify CRUD
 
 ---
 
-# Error Analysis Report
+## 🛡️ Security Review
 
-## Critical
+### Implemented
 
-- Browser routes not fully protected
-- Password hashes may be exposed through REST responses
-- CSRF disabled while using sessions
+- ✅ BCrypt password hashing
+- ✅ JWT authentication
+- ✅ Spring Security
+- ✅ Environment variable secrets
+- ✅ Protected API endpoints
 
-## High
+### Known Issues
 
-- Missing DTO layer
-- Missing validation
-- Missing unique constraints
-- No ownership authorization
-- Generic error messages
-
-## Medium
-
-- Cloudinary ownership not saved
-- JWT parsed multiple times
-- Upload restrictions missing
-
-## Low
-
-- Field Injection
-- Unused Files
-- Cleanup Needed
+- ❌ CSRF is disabled
+- ❌ No role-based authorization
+- ❌ No ownership checks
+- ❌ Potential password-hash exposure through REST responses
+- ❌ Request validation is incomplete
 
 ---
 
-# Learning Outcomes
+## 🔎 Known Issues & Improvements
 
-This project demonstrates:
+### Critical
+
+- Protect browser routes completely.
+- Prevent password hashes from being returned by REST APIs.
+- Review CSRF configuration for session-based browser authentication.
+
+### High Priority
+
+- Add a DTO layer.
+- Add request/input validation.
+- Add unique database constraints where required.
+- Implement ownership-based authorization.
+- Improve error responses.
+
+### Medium Priority
+
+- Store Cloudinary ownership information.
+- Avoid parsing JWTs multiple times where possible.
+- Add upload file type/size restrictions.
+
+### Low Priority
+
+- Replace field injection with constructor injection.
+- Remove unused files.
+- Perform general project cleanup.
+
+---
+
+## 🎯 Recommended Improvements Before Submission
+
+The following items should be addressed before treating the application as production-ready:
+
+1. Remove password hashes from API responses.
+2. Add DTOs for API request/response models.
+3. Review and enable appropriate CSRF protection for browser forms.
+4. Protect all browser routes.
+5. Add validation for incoming requests.
+6. Add appropriate unique constraints.
+7. Test all authentication and external integrations end-to-end.
+
+---
+
+## 📚 Learning Outcomes
+
+This project demonstrates practical experience with:
 
 - Java Enterprise Development
+- Spring Boot
 - Spring MVC
 - Spring Security
 - Session Management
@@ -748,23 +733,49 @@ This project demonstrates:
 - SMTP Email Integration
 - Cloudinary File Storage
 - Docker Containerization
-- Cloud Deployment using Render
+- Git/GitHub
+- Maven
+- Cloud Deployment with Render
 
 ---
 
-# Must Fix Before Submission
+## 📈 Project Summary
 
-1. Remove password hashes from API responses.
-2. Add DTO layer.
-3. Enable CSRF for browser forms.
-4. Protect all browser routes.
-5. Add validation.
-6. Add unique constraints.
+MySpringWeb brings together multiple enterprise technologies in one application:
+
+```text
+Java 17
+   │
+   ▼
+Spring Boot
+   │
+   ├── Spring MVC ───────► Thymeleaf UI
+   │
+   ├── Spring Security ──► Session + JWT
+   │
+   ├── JPA/Hibernate ────► Database
+   │
+   ├── JavaMailSender ───► Gmail SMTP
+   │
+   └── Cloudinary ───────► Image Storage
+             │
+             ▼
+          Docker
+             │
+             ▼
+           Render
+```
+
+The core functionality is implemented and the project demonstrates the major concepts expected from an enterprise Java web application. Before production use or final submission, the main focus should be on **security hardening, route protection, validation, DTO implementation, and complete end-to-end testing**.
 
 ---
 
-# Final Conclusion
+## 👨‍💻 Author
 
-MySpringWeb successfully demonstrates a complete Java Enterprise Web Application using Spring Boot, Spring Security, Hibernate, JWT, SMTP Email, Cloudinary, Docker, and Render Deployment.
+**Sulav Poudyal**
 
-The core functionality is implemented and educational objectives are achieved. Before production use or final submission, focus on security hardening, route protection, input validation, DTO implementation, and full end-to-end testing of all external integrations.
+Built as an **Enterprise Web Systems Development** project.
+
+---
+
+⭐ If this project helped you learn Spring Boot and enterprise web development, consider giving the repository a star.
