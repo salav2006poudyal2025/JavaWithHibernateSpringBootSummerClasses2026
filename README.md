@@ -249,8 +249,6 @@ Store Username
 Access Protected Page
 ```
 
-**Status:** ✅ Implemented
-
 Current areas identified for improvement:
 
 - Route protection
@@ -275,8 +273,6 @@ Database
 ```
 
 During login, the supplied password is checked against the stored BCrypt hash.
-
-**Status:** ✅ Implemented
 
 ---
 
@@ -315,8 +311,6 @@ Allow Access
 - `JwtAuthenticationFilter`
 - `SecurityConfig`
 
-**Status:** ✅ Implemented
-
 ### Possible Improvements
 
 - Role-based authorization
@@ -350,8 +344,6 @@ Gmail SMTP
 - Welcome/registration email
 - Asynchronous email sending
 
-**Status:** ✅ Implemented
-
 ---
 
 ## ☁️ Cloudinary Integration
@@ -376,8 +368,6 @@ Database
      ▼
 Gallery Display
 ```
-
-**Status:** ✅ Implemented
 
 ### Possible Improvements
 
