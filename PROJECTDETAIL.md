@@ -1,4 +1,4 @@
-# MySpringWeb — Project Detailss
+# MySpringWeb — Project Details
 
 > This document contains the detailed implementation documentation for MySpringWeb. The root `README.md` is intentionally kept shorter and acts as the project entry point.
 
