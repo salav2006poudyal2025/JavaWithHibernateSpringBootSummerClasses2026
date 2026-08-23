@@ -1,8 +1,6 @@
 COMPLETE STUDY NOTES: JAVA + SPRING + HIBERNATE + SECURITY + JWT + EMAIL + CLOUDINARY + DEPLOYMENT
 
-================================================================================
 1. COURSE OVERVIEW
-================================================================================
 
 Enterprise Web Systems Development combines:
 - Java Programming Language
@@ -22,9 +20,7 @@ Technology Stack:
 - Security: Spring Security, BCrypt, JWT
 - Cloud Services: Cloudinary, Render
 
-================================================================================
 2. JAVA FUNDAMENTALS
-================================================================================
 
 JAVA IS PLATFORM INDEPENDENT
 
@@ -55,9 +51,7 @@ Interface:
 - Define required methods.
 - Multiple interfaces possible.
 
-================================================================================
 3. EXCEPTION HANDLING
-================================================================================
 
 Purpose:
 Handle runtime errors gracefully.
@@ -95,9 +89,7 @@ Common Exceptions:
 User Defined Exception:
 Create custom exception classes by extending Exception.
 
-================================================================================
 4. BYTE STREAMS AND CHARACTER STREAMS
-================================================================================
 
 Byte Streams:
 - Work with binary data.
@@ -114,9 +106,7 @@ Character Streams:
 - Work with text.
 - Handle encoding automatically.
 
-================================================================================
 5. N-TIER ARCHITECTURE IN SPRING
-================================================================================
 
 Controller Layer:
 - Receives HTTP requests.
@@ -134,9 +124,7 @@ Benefits:
 - Scalability
 - Clean code
 
-================================================================================
 6. HIBERNATE AND JPA
-================================================================================
 
 Purpose:
 Map Java Objects to Database Tables.
@@ -156,9 +144,7 @@ Annotations:
 - @Id
 - @GeneratedValue
 
-================================================================================
 7. REST CONTROLLERS
-================================================================================
 
 @RequestMapping("/api")
 
@@ -179,9 +165,7 @@ If ID not found, generic errors may appear.
 Solution:
 ResponseEntity.
 
-================================================================================
 8. RESPONSEENTITY
-================================================================================
 
 Provides:
 - HTTP Status Control
@@ -215,9 +199,7 @@ Resource does not exist.
 500 INTERNAL SERVER ERROR
 Unexpected server problem.
 
-================================================================================
 9. SPRING SECURITY
-================================================================================
 
 Dependency:
 Spring Security Starter.
@@ -239,9 +221,7 @@ Permit all requests.
 Lambda Usage:
 http.csrf(csrf -> csrf.disable())
 
-================================================================================
 10. BCRYPT PASSWORD ENCODER
-================================================================================
 
 Purpose:
 Hash passwords securely.
@@ -265,9 +245,7 @@ Benefits:
 - Passwords never stored as plain text.
 - Strong security.
 
-================================================================================
 11. SESSION AUTHENTICATION
-================================================================================
 
 Flow:
 1. User logs in.
@@ -276,9 +254,7 @@ Flow:
 4. Session stored on server.
 5. User accesses protected pages.
 
-================================================================================
 12. JAVA EMAIL SERVICE
-================================================================================
 
 Purpose:
 Send automated emails.
@@ -296,9 +272,7 @@ Use Cases:
 - Notifications
 - Password reset emails
 
-================================================================================
 13. JWT AUTHENTICATION
-================================================================================
 
 JWT = JSON Web Token
 
@@ -325,9 +299,7 @@ JWT Utility Responsibilities:
 
 Token contains user identity information.
 
-================================================================================
 14. JWT FILTER
-================================================================================
 
 JwtAuthenticationFilter extends OncePerRequestFilter.
 
@@ -348,9 +320,7 @@ Token: Bearer <jwt-token>
 'Bearer ' including space equals 7 characters.
 Token extracted using substring(7).
 
-================================================================================
 15. JWT SECURITY CONFIGURATION
-================================================================================
 
 Security Rules:
 - Allow login endpoints.
@@ -368,9 +338,7 @@ Flow:
 3. Authentication added.
 4. Remaining security filters execute.
 
-================================================================================
 16. CLOUDINARY IMAGE UPLOAD
-================================================================================
 
 Purpose:
 Store images in cloud.
@@ -401,9 +369,7 @@ Annotations:
 Multipart Upload Form:
 enctype="multipart/form-data"
 
-================================================================================
 17. SPRING CONFIGURATION AND BEANS
-================================================================================
 
 @Configuration:
 Defines configuration class.
@@ -414,9 +380,7 @@ Registers object into Spring Container.
 Why Needed:
 Allows Spring to manage third-party libraries such as Cloudinary.
 
-================================================================================
 18. API TESTING WITH POSTMAN
-================================================================================
 
 Used For:
 - GET Requests
@@ -426,9 +390,7 @@ Used For:
 - JWT Testing
 - Response Verification
 
-================================================================================
 19. GIT AND GITHUB
-================================================================================
 
 Version Control System.
 
@@ -444,9 +406,7 @@ Common Operations:
 - Push
 - Pull
 
-================================================================================
 20. MAVEN BUILD PROCESS
-================================================================================
 
 Purpose:
 Build project artifacts.
@@ -462,9 +422,7 @@ package
 Output:
 Generated JAR inside target folder.
 
-================================================================================
 21. DOCKER
-================================================================================
 
 Purpose:
 Containerize applications.
@@ -482,9 +440,7 @@ Dockerfile Tasks:
 - Expose port 8080
 - Run JAR file
 
-================================================================================
 22. RENDER DEPLOYMENT
-================================================================================
 
 Purpose:
 Deploy Spring applications to cloud.
@@ -503,9 +459,7 @@ Benefits:
 - Automatic redeployment
 - GitHub integration
 
-================================================================================
 23. FINAL COURSE COMPETENCIES
-================================================================================
 
 After completing the course a student should be able to:
 
