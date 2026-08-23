@@ -1,17 +1,17 @@
-COMPLETE STUDY NOTES: JAVA + SPRING + HIBERNATE + SECURITY + JWT + EMAIL + CLOUDINARY + DEPLOYMENT
+# Complete Study Notes: Java + Spring + Hibernate + Security + JWT + Email + Cloudinary + Deployment
 
-1. COURSE OVERVIEW
+## 1. Course Overview
 
-Enterprise Web Systems Development combines:
+**Enterprise Web Systems Development combines:**
 - Java Programming Language
 - Enterprise Application Development
 - Spring Framework (Spring MVC / Spring Boot)
 - Hibernate ORM / JPA
 
-Purpose:
+**Purpose:**
 Build scalable, secure, maintainable, production-ready web applications using industry-standard architecture.
 
-Technology Stack:
+**Technology Stack:**
 - Backend: Spring MVC / Spring Boot
 - ORM: Hibernate / JPA
 - Database: MySQL / PostgreSQL
@@ -20,292 +20,293 @@ Technology Stack:
 - Security: Spring Security, BCrypt, JWT
 - Cloud Services: Cloudinary, Render
 
-2. JAVA FUNDAMENTALS
+## 2. Java Fundamentals
 
-JAVA IS PLATFORM INDEPENDENT
+### Java Is Platform Independent
 
 Write Once Run Anywhere (WORA).
 
-Flow:
+**Flow:**
 1. Write Java Source Code (.java)
 2. Compile using javac
 3. Generate Bytecode (.class)
 4. JVM executes bytecode
 
-Classes and Inheritance:
+**Classes and Inheritance:**
 - One class extends another.
 - Child inherits parent's methods and fields.
 - Java supports single inheritance.
 
-Interfaces:
+**Interfaces:**
 - Define behavior contracts.
 - Classes implement interfaces.
 - Supports multiple interface implementation.
 
-Inheritance vs Interface:
-Inheritance:
+**Inheritance vs Interface:**
+
+**Inheritance:**
 - Reuse existing code.
 - One parent class only.
 
-Interface:
+**Interface:**
 - Define required methods.
 - Multiple interfaces possible.
 
-3. EXCEPTION HANDLING
+## 3. Exception Handling
 
-Purpose:
+**Purpose:**
 Handle runtime errors gracefully.
 
-Keywords:
+**Keywords:**
 1. try
 2. catch
 3. finally
 4. throw
 5. throws
 
-try:
+**try:**
 Contains code that may generate an exception.
 
-catch:
+**catch:**
 Handles exceptions.
 
-finally:
+**finally:**
 Always runs.
 Used for cleanup.
 
-throw:
+**throw:**
 Manually creates an exception.
 
-throws:
+**throws:**
 Declares potential exceptions.
 
-Common Exceptions:
+**Common Exceptions:**
 - ArithmeticException
 - NullPointerException
 - NumberFormatException
 - ArrayIndexOutOfBoundsException
 - InputMismatchException
 
-User Defined Exception:
+**User Defined Exception:**
 Create custom exception classes by extending Exception.
 
-4. BYTE STREAMS AND CHARACTER STREAMS
+## 4. Byte Streams and Character Streams
 
-Byte Streams:
+**Byte Streams:**
 - Work with binary data.
 - Images
 - Audio
 - Videos
 - Files
 
-Classes:
+**Classes:**
 - FileInputStream
 - FileOutputStream
 
-Character Streams:
+**Character Streams:**
 - Work with text.
 - Handle encoding automatically.
 
-5. N-TIER ARCHITECTURE IN SPRING
+## 5. N-Tier Architecture in Spring
 
-Controller Layer:
+**Controller Layer:**
 - Receives HTTP requests.
 - Sends HTTP responses.
 
-Service Layer:
+**Service Layer:**
 - Contains business logic.
 
-Repository Layer:
+**Repository Layer:**
 - Interacts with database.
 
-Benefits:
+**Benefits:**
 - Separation of concerns
 - Maintainability
 - Scalability
 - Clean code
 
-6. HIBERNATE AND JPA
+## 6. Hibernate and JPA
 
-Purpose:
+**Purpose:**
 Map Java Objects to Database Tables.
 
-Features:
+**Features:**
 - CRUD Operations
 - Entity Mapping
 - Relationship Mapping
 
-Relationships:
+**Relationships:**
 - One to One
 - One to Many
 - Many to Many
 
-Annotations:
+**Annotations:**
 - @Entity
 - @Id
 - @GeneratedValue
 
-7. REST CONTROLLERS
+## 7. REST Controllers
 
-@RequestMapping("/api")
+`@RequestMapping("/api")`
 
 Used at controller level.
 All routes start with /api.
 
-@PathVariable
+`@PathVariable`
 
 Extract values from URL.
-Example:
-/api/users/12
+**Example:**
+`/api/users/12`
 
 12 becomes parameter value.
 
-Problem:
+**Problem:**
 If ID not found, generic errors may appear.
 
-Solution:
+**Solution:**
 ResponseEntity.
 
-8. RESPONSEENTITY
+## 8. ResponseEntity
 
-Provides:
+**Provides:**
 - HTTP Status Control
 - Custom Response Bodies
 - Error Handling
 
-HTTP STATUS CODES
+### HTTP Status Codes
 
-200 OK
+**200 OK**
 Request successful.
 
-201 CREATED
+**201 CREATED**
 Resource created.
 Usually POST.
 
-204 NO CONTENT
+**204 NO CONTENT**
 Success but no response body.
 
-400 BAD REQUEST
+**400 BAD REQUEST**
 Invalid client input.
 
-401 UNAUTHORIZED
+**401 UNAUTHORIZED**
 Login required.
 
-403 FORBIDDEN
+**403 FORBIDDEN**
 Permission denied.
 
-404 NOT FOUND
+**404 NOT FOUND**
 Resource does not exist.
 
-500 INTERNAL SERVER ERROR
+**500 INTERNAL SERVER ERROR**
 Unexpected server problem.
 
-9. SPRING SECURITY
+## 9. Spring Security
 
-Dependency:
+**Dependency:**
 Spring Security Starter.
 
-SecurityConfig:
+**SecurityConfig:**
 Creates SecurityFilterChain.
 
-SecurityFilterChain:
+**SecurityFilterChain:**
 Controls security rules for the entire application.
 
-Default Behavior:
+**Default Behavior:**
 - Username: user
 - Password generated in console.
 
-Development Configuration:
+**Development Configuration:**
 Disable CSRF.
 Permit all requests.
 
-Lambda Usage:
-http.csrf(csrf -> csrf.disable())
+**Lambda Usage:**
+`http.csrf(csrf -> csrf.disable())`
 
-10. BCRYPT PASSWORD ENCODER
+## 10. BCrypt Password Encoder
 
-Purpose:
+**Purpose:**
 Hash passwords securely.
 
-Implementation:
+**Implementation:**
 Create PasswordEncoder Bean.
 Return BCryptPasswordEncoder.
 
-Signup:
+**Signup:**
 1. Receive password.
 2. Encode password.
 3. Store encoded password.
 
-Login:
+**Login:**
 1. Find user.
 2. Compare raw password with encoded password.
 3. Authenticate.
 4. Create session.
 
-Benefits:
+**Benefits:**
 - Passwords never stored as plain text.
 - Strong security.
 
-11. SESSION AUTHENTICATION
+## 11. Session Authentication
 
-Flow:
+**Flow:**
 1. User logs in.
 2. Credentials validated.
 3. Session created.
 4. Session stored on server.
 5. User accesses protected pages.
 
-12. JAVA EMAIL SERVICE
+## 12. Java Email Service
 
-Purpose:
+**Purpose:**
 Send automated emails.
 
-Setup:
+**Setup:**
 1. Add Java Mail Sender dependency.
 2. Reload Maven.
 3. Configure application.properties.
 4. Use Gmail App Password.
 5. Autowire JavaMailSender.
 
-Use Cases:
+**Use Cases:**
 - Registration confirmation
 - Login alerts
 - Notifications
 - Password reset emails
 
-13. JWT AUTHENTICATION
+## 13. JWT Authentication
 
 JWT = JSON Web Token
 
-Dependencies:
+**Dependencies:**
 - jjwt-api
 - jjwt-impl
 - jjwt-jackson
 
-Purpose:
+**Purpose:**
 Stateless authentication.
 
-Token Generation:
+**Token Generation:**
 User logs in.
 Server generates token.
 Client stores token.
 
-Subsequent Requests:
+**Subsequent Requests:**
 Client sends token.
 Server validates token.
 
-JWT Utility Responsibilities:
+**JWT Utility Responsibilities:**
 - Generate Token
 - Extract Username
 
 Token contains user identity information.
 
-14. JWT FILTER
+## 14. JWT Filter
 
 JwtAuthenticationFilter extends OncePerRequestFilter.
 
 Runs for every request.
 
-Process:
+**Process:**
 1. Read token header.
 2. Check Bearer token.
 3. Extract token.
@@ -314,36 +315,38 @@ Process:
 6. Set authentication.
 7. Continue filter chain.
 
-Header Format:
-Token: Bearer <jwt-token>
+**Header Format:**
+`Token: Bearer <jwt-token>`
 
 'Bearer ' including space equals 7 characters.
 Token extracted using substring(7).
 
-15. JWT SECURITY CONFIGURATION
+## 15. JWT Security Configuration
 
-Security Rules:
+**Security Rules:**
 - Allow login endpoints.
 - Protect /api/** endpoints.
 
-Filter Ordering:
+**Filter Ordering:**
+```java
 http.addFilterBefore(
 jwtAuthFilter,
 UsernamePasswordAuthenticationFilter.class
 )
+```
 
-Flow:
+**Flow:**
 1. JWT Filter executes first.
 2. Token validated.
 3. Authentication added.
 4. Remaining security filters execute.
 
-16. CLOUDINARY IMAGE UPLOAD
+## 16. Cloudinary Image Upload
 
-Purpose:
+**Purpose:**
 Store images in cloud.
 
-Flow:
+**Flow:**
 1. User uploads image.
 2. Controller receives MultipartFile.
 3. Upload sent to Cloudinary.
@@ -352,37 +355,37 @@ Flow:
 6. URL saved in database.
 7. Display image using stored URL.
 
-Important Classes:
+**Important Classes:**
 - Model(Entity)
 - Repository
 - Controller
 - CloudinaryConfig
 
-Annotations:
-@Entity
-@Repository
-@Controller
-@Configuration
-@Bean
-@Autowired
+**Annotations:**
+`@Entity`
+`@Repository`
+`@Controller`
+`@Configuration`
+`@Bean`
+`@Autowired`
 
-Multipart Upload Form:
-enctype="multipart/form-data"
+**Multipart Upload Form:**
+`enctype="multipart/form-data"`
 
-17. SPRING CONFIGURATION AND BEANS
+## 17. Spring Configuration and Beans
 
-@Configuration:
+**`@Configuration`:**
 Defines configuration class.
 
-@Bean:
+**`@Bean`:**
 Registers object into Spring Container.
 
-Why Needed:
+**Why Needed:**
 Allows Spring to manage third-party libraries such as Cloudinary.
 
-18. API TESTING WITH POSTMAN
+## 18. API Testing with Postman
 
-Used For:
+**Used For:**
 - GET Requests
 - POST Requests
 - PUT Requests
@@ -390,49 +393,49 @@ Used For:
 - JWT Testing
 - Response Verification
 
-19. GIT AND GITHUB
+## 19. Git and GitHub
 
 Version Control System.
 
-Best Practices:
+**Best Practices:**
 - Create repository.
 - Commit frequently.
 - Write meaningful messages.
 - Push regularly.
 
-Common Operations:
+**Common Operations:**
 - Clone
 - Commit
 - Push
 - Pull
 
-20. MAVEN BUILD PROCESS
+## 20. Maven Build Process
 
-Purpose:
+**Purpose:**
 Build project artifacts.
 
-Lifecycle:
+**Lifecycle:**
 1. Compile
 2. Test
 3. Package
 
-Command:
+**Command:**
 package
 
-Output:
+**Output:**
 Generated JAR inside target folder.
 
-21. DOCKER
+## 21. Docker
 
-Purpose:
+**Purpose:**
 Containerize applications.
 
-Benefits:
+**Benefits:**
 - Consistent environments
 - Easy deployment
 - Portable execution
 
-Dockerfile Tasks:
+**Dockerfile Tasks:**
 - Use Java 17 image
 - Install Maven
 - Copy project
@@ -440,12 +443,12 @@ Dockerfile Tasks:
 - Expose port 8080
 - Run JAR file
 
-22. RENDER DEPLOYMENT
+## 22. Render Deployment
 
-Purpose:
+**Purpose:**
 Deploy Spring applications to cloud.
 
-Steps:
+**Steps:**
 1. Push code to GitHub.
 2. Open Render.
 3. Create Web Service.
@@ -453,15 +456,15 @@ Steps:
 5. Select Docker runtime.
 6. Deploy.
 
-Benefits:
+**Benefits:**
 - HTTPS
 - Public URL
 - Automatic redeployment
 - GitHub integration
 
-23. FINAL COURSE COMPETENCIES
+## 23. Final Course Competencies
 
-After completing the course a student should be able to:
+**After completing the course a student should be able to:**
 
 - Build enterprise web systems.
 - Design N-tier architectures.
