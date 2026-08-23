@@ -126,44 +126,6 @@ The Docker build uses a Maven build stage and a Java 17 runtime stage. It curren
 
 The repository includes [render.yaml](render.yaml) for a Docker-based Render web service. Configure every required environment variable in Render before deployment. Do not put secrets in `render.yaml`.
 
-## Screenshots
-
-Add screenshots of the main pages here when publishing the project:
-
-| Page | Screenshot |
-| --- | --- |
-| Login | `docs/screenshots/login.png` |
-| User home | `docs/screenshots/home.png` |
-| Database gallery | `docs/screenshots/gallery.png` |
-| Cloudinary gallery | `docs/screenshots/gallery2.png` |
-
-## Current Status
-
-### Completed
-
-✅ Web pages and form workflows
-✅ Session-based browser login and logout
-✅ BCrypt password hashing
-✅ JWT authentication and protected REST API
-✅ User CRUD
-✅ Database and Cloudinary image upload paths
-✅ Gmail SMTP welcome email path
-✅ Docker and Render configuration
-
-### Partially Implemented
-
-🟡 Automated testing covers application startup and the email service, but not the full application.
-🟡 Browser authorization is handled by a mixture of Spring Security rules and controller session checks.
-🟡 Cloudinary image records are saved without assigning the current user.
-
-## Future Improvements
-
-- Add DTOs and redact password fields from REST responses.
-- Add consistent validation, error responses, and ownership checks.
-- Add roles, refresh tokens, and stronger JWT validation.
-- Add upload validation, database migrations, and broader automated tests.
-- Add CI/CD and production monitoring.
-
 ## Author
 
 **Sulav Poudyal**
