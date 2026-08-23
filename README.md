@@ -1,330 +1,637 @@
-# MySpringWeb
+# 🚀 MySpringWeb
 
-MySpringWeb is a full-stack Spring Boot application that combines a server-rendered web interface with a JWT-protected REST API. It was developed as an Enterprise Web Systems Development project to demonstrate how authentication, persistence, validation, email delivery, image storage, containerization, and cloud deployment fit together in a layered Java application.
+<p align="center">
+  <strong>A full-stack Spring Boot application combining a server-rendered web interface with a JWT-protected REST API.</strong>
+</p>
 
-The application currently supports:
+<p align="center">
+  Authentication • JPA/Hibernate • MySQL • JWT • Thymeleaf • Email • Cloudinary • Docker • Render
+</p>
 
-- Browser-based user registration, login, logout, and user administration
-- BCrypt password hashing and credential verification
-- A session-based browser workflow
-- JWT creation and Bearer-token authentication for REST endpoints
-- CRUD operations for users through both the web interface and REST API
-- A database-backed image gallery that stores Base64 image data
-- A Cloudinary-backed image gallery that stores secure image URLs
-- Asynchronous registration emails through Gmail SMTP
-- JPA/Hibernate persistence with a MySQL-compatible database
-- Thymeleaf templates and static CSS for the web interface
-- Docker packaging and Render deployment configuration
-- Automated tests for application startup and email service behavior
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-17-orange?style=for-the-badge&logo=openjdk" alt="Java 17">
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.0-brightgreen?style=for-the-badge&logo=springboot" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/Spring%20Security-JWT-blue?style=for-the-badge&logo=springsecurity" alt="Spring Security">
+  <img src="https://img.shields.io/badge/MySQL-Compatible-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render">
+</p>
 
-> **Project status:** The core application functionality is implemented. The production-hardening items listed in [Future Scope](#future-scope) are intentionally documented as next steps, not as completed features.
+<p align="center">
+  <a href="#-overview">Overview</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-architecture">Architecture</a> •
+  <a href="#-rest-api">REST API</a> •
+  <a href="#-setup">Setup</a> •
+  <a href="#-deployment">Deployment</a>
+</p>
 
-## Table of Contents
+---
 
-- [Project Overview](#project-overview)
-- [Objectives](#objectives)
-- [Implemented Features](#implemented-features)
-- [Application Workflows](#application-workflows)
-- [Architecture](#architecture)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Data Model](#data-model)
-- [Web Application Routes](#web-application-routes)
-- [REST API](#rest-api)
-- [Security Design](#security-design)
-- [Configuration](#configuration)
-- [Local Development Setup](#local-development-setup)
-- [Running the Application](#running-the-application)
-- [Testing](#testing)
-- [Docker](#docker)
-- [Render Deployment](#render-deployment)
-- [Operational Notes and Limitations](#operational-notes-and-limitations)
-- [Future Scope](#future-scope)
-- [Learning Outcomes](#learning-outcomes)
-- [Author](#author)
+## 📌 Project Status
 
-## Project Overview
+> 🟢 **Core application functionality is implemented.**
+>
+> The production-hardening items listed in the [Future Scope](#-future-scope) section are intentionally documented as **future improvements**, not completed features.
 
-MySpringWeb demonstrates a conventional layered/N-tier architecture:
+---
 
-1. A browser or API client sends a request.
-2. A controller receives the request and selects the appropriate page or API response.
-3. Services perform authentication, registration, password handling, email triggering, and business operations.
-4. Spring Data repositories communicate with the database.
-5. Thymeleaf renders browser pages, while REST controllers return HTTP responses and JSON data.
+# 📖 Overview
 
-The project intentionally contains two complementary interfaces:
+**MySpringWeb** is a full-stack **Spring Boot** application developed as an **Enterprise Web Systems Development** project.
 
-- **Web interface:** server-rendered Thymeleaf pages for people using the application in a browser.
-- **REST interface:** JSON-oriented user operations protected with JWT authentication for tools such as Postman or another client application.
+The project demonstrates how common enterprise application components work together in a layered Java application, including:
 
-It also contains two image-storage demonstrations:
+* 🔐 Authentication and authorization
+* 🔑 BCrypt password hashing
+* 🎟️ JWT-based REST authentication
+* 🌐 Server-rendered Thymeleaf web pages
+* 🗄️ JPA/Hibernate database persistence
+* 👤 User CRUD operations
+* 🖼️ Database-backed image storage
+* ☁️ Cloudinary image storage
+* 📧 Gmail SMTP email delivery
+* 🐳 Docker containerization
+* 🚀 Render deployment
+* 🧪 Automated testing
+* ⚙️ Environment-based configuration
 
-- `ImageTable` stores encoded image content in the database.
-- `ImageTable2` stores URLs returned by Cloudinary.
+The application provides **two complementary interfaces**:
 
-This makes the application useful as both a working web system and a practical comparison of local database storage versus managed cloud media storage.
+| Interface          | Technology             | Purpose                   |
+| ------------------ | ---------------------- | ------------------------- |
+| 🌐 Web Application | Spring MVC + Thymeleaf | Browser-based interaction |
+| 🔌 REST API        | Spring REST + JWT      | Programmatic/API access   |
 
-## Objectives
+It also demonstrates **two different image-storage strategies**:
+
+| Storage       | Implementation | Purpose                       |
+| ------------- | -------------- | ----------------------------- |
+| 🗄️ Database  | `ImageTable`   | Stores Base64 image data      |
+| ☁️ Cloudinary | `ImageTable2`  | Stores secure Cloudinary URLs |
+
+This makes MySpringWeb both a working web application and a practical demonstration of different enterprise architecture and storage approaches.
+
+---
+
+# 🎯 Objectives
 
 The project was designed to demonstrate:
 
-- How Spring Boot starts and configures an enterprise Java application
-- How Spring MVC maps browser requests to controllers and templates
-- How Spring Data JPA maps Java entities to relational tables
-- How BCrypt protects stored passwords
-- How session authentication and stateless JWT authentication can coexist
-- How services isolate reusable business logic from controllers
-- How email and external cloud services are integrated
-- How multipart uploads are accepted and persisted
-- How environment variables keep deployment credentials outside source code
-- How a Maven project can be packaged into a Docker image and deployed to Render
+* How Spring Boot starts and configures an enterprise Java application
+* How Spring MVC maps browser requests to controllers and templates
+* How Spring Data JPA maps Java entities to relational tables
+* How BCrypt protects stored passwords
+* How session authentication and stateless JWT authentication can coexist
+* How services isolate reusable business logic from controllers
+* How email and external cloud services are integrated
+* How multipart uploads are accepted and persisted
+* How environment variables keep deployment credentials outside source code
+* How a Maven project can be packaged into a Docker image
+* How a Dockerized Spring Boot application can be deployed to Render
 
-## Implemented Features
+---
 
-### User registration
+# ✨ Features
 
-- A signup page collects a username, email, and password.
-- Required values are validated using Jakarta validation annotations on the user model.
-- Duplicate usernames are rejected before a new user is saved.
-- Passwords are encoded with BCrypt before persistence.
-- A welcome email is triggered after registration.
-- The email operation is asynchronous, so a mail delivery problem does not have to block the registration flow.
-- After successful registration, the browser is redirected to the login page.
+## 👤 User Registration
 
-### Browser login and logout
+The application provides a browser-based registration workflow.
 
-- The login page accepts a username and password.
-- Credentials are checked against the stored BCrypt password hash.
-- On successful login, the username is stored in the HTTP session.
-- Successful login redirects the user to the home page.
-- Logout invalidates the current HTTP session.
+* Registration using username, email, and password
+* Jakarta validation
+* Required-field validation
+* Duplicate username detection
+* BCrypt password hashing
+* Passwords are not intentionally stored as plain text
+* Automatic welcome email
+* Asynchronous email delivery using `@Async`
+* Redirect to the login page after successful registration
 
-### User administration
-
-The browser interface supports:
-
-- Viewing all users on the home page
-- Opening a user for editing
-- Updating a user's username and email
-- Keeping the active session username synchronized after a username update
-- Deleting a user by ID
-
-The REST interface exposes corresponding create, read, update, and delete operations.
-
-### Database image gallery
-
-The first gallery demonstrates storing image content in the application database:
-
-1. A multipart file is submitted from the gallery page.
-2. The file is read and encoded as Base64 text.
-3. The encoded value is stored in `ImageTable`.
-4. The image is associated with the current session user when one is available.
-5. The gallery loads stored records and displays the image data in the browser.
-
-This approach is useful for demonstrating persistence, but Base64 increases the stored size and is not ideal for a large production media library.
-
-### Cloudinary image gallery
-
-The second gallery demonstrates managed external media storage:
-
-1. A multipart file is submitted from the Cloudinary gallery page.
-2. The controller uploads the file to Cloudinary.
-3. Cloudinary returns a `secure_url`.
-4. The URL is stored in `ImageTable2`.
-5. The gallery displays the stored remote image URL.
-
-### Email integration
-
-- Gmail SMTP is configured through Spring Boot Mail.
-- SMTP uses port `587`, authentication, and STARTTLS.
-- Registration sends a personalized welcome message.
-- The email service is asynchronous through `@Async`.
-- Email failures are logged by the service rather than being allowed to undo the saved registration.
-
-### REST API
-
-- REST login returns a signed JWT when credentials are valid.
-- The JWT contains the username as its subject.
-- A request filter reads `Authorization: Bearer <token>` headers.
-- Protected user endpoints require authentication.
-- Controllers use `ResponseEntity` and HTTP status codes for API responses.
-- Missing users are converted into `404 Not Found` responses.
-- Validation failures are converted into `400 Bad Request` responses where validation is applied.
-
-### Deployment support
-
-- The project includes Maven Wrapper scripts for repeatable Maven execution.
-- The Dockerfile uses a multi-stage build.
-- The build stage uses Maven with Eclipse Temurin Java 17.
-- The runtime stage uses a smaller Eclipse Temurin Java 17 JRE Alpine image.
-- Render is configured as a Docker web service on the `main` branch.
-
-## Application Workflows
-
-### Registration workflow
+### Registration Flow
 
 ```text
-Browser submits signup form
-        |
-        v
-SignupController validates request
-        |
-        v
-UserService checks duplicate username
-        |
-        v
-PasswordEncoder creates BCrypt hash
-        |
-        v
-UserRepository saves UserTable
-        |
-        v
-EmailService sends welcome email asynchronously
-        |
-        v
-Browser redirects to /login
+Browser Signup Form
+        │
+        ▼
+SignupController
+        │
+        ▼
+Request Validation
+        │
+        ▼
+UserService
+        │
+        ▼
+Duplicate Username Check
+        │
+        ▼
+BCrypt Password Encoding
+        │
+        ▼
+UserRepository
+        │
+        ▼
+Database
+        │
+        ▼
+Async EmailService
+        │
+        ▼
+Redirect to /login
 ```
 
-### Browser authentication workflow
+---
+
+## 🔐 Browser Login & Logout
+
+The browser interface supports session-based authentication.
+
+### Login
+
+* Username/password login
+* Credential verification
+* BCrypt password comparison
+* Username stored in `HttpSession`
+* Redirect to `/home` after successful authentication
+
+### Logout
+
+* HTTP session invalidation
+* Current browser session is cleared
 
 ```text
 POST /login
-        |
-        v
-Look up username
-        |
-        v
-Compare submitted password with BCrypt hash
-        |
-        v
-Store username in HttpSession
-        |
-        v
+     │
+     ▼
+Find User
+     │
+     ▼
+Compare Password with BCrypt
+     │
+     ▼
+Store Username in HttpSession
+     │
+     ▼
 Redirect to /home
 ```
 
-### JWT workflow
+---
+
+## 👥 User Administration
+
+The browser interface supports:
+
+* Viewing all users
+* Opening a user for editing
+* Updating username
+* Updating email
+* Keeping the active session username synchronized after username changes
+* Deleting users by ID
+
+The REST API provides corresponding CRUD functionality.
+
+---
+
+# 🖼️ Database Image Gallery
+
+The first gallery demonstrates storing image data directly in the application database.
+
+### Workflow
+
+```text
+Multipart File
+      │
+      ▼
+Read File
+      │
+      ▼
+Base64 Encoding
+      │
+      ▼
+ImageTable
+      │
+      ▼
+Database
+      │
+      ▼
+Browser Gallery
+```
+
+The image is:
+
+1. Submitted through a multipart form.
+2. Read by the application.
+3. Converted into Base64 text.
+4. Stored in `ImageTable`.
+5. Associated with the current session user when available.
+6. Loaded and displayed by the gallery page.
+
+### ⚠️ Storage Consideration
+
+Base64 encoding increases the amount of data stored compared with the original binary file.
+
+Therefore, this approach is useful for:
+
+* Demonstration
+* Learning database persistence
+* Small applications
+
+But it is **not ideal for a large production media library**.
+
+---
+
+# ☁️ Cloudinary Image Gallery
+
+The second gallery demonstrates external cloud-based media storage using Cloudinary.
+
+### Workflow
+
+```text
+Multipart File
+      │
+      ▼
+Cloudinary Upload
+      │
+      ▼
+secure_url
+      │
+      ▼
+ImageTable2
+      │
+      ▼
+Browser Gallery
+```
+
+The process is:
+
+1. A multipart file is submitted.
+2. The controller uploads the file to Cloudinary.
+3. Cloudinary returns a `secure_url`.
+4. The URL is stored in `ImageTable2`.
+5. The gallery displays the remote image.
+
+### Benefits
+
+Cloudinary provides a more scalable approach for image delivery and can support:
+
+* CDN delivery
+* Image transformations
+* Image optimization
+* Responsive image generation
+* External media management
+
+---
+
+# 📧 Email Integration
+
+The project integrates Gmail SMTP through Spring Boot Mail.
+
+### Current Configuration
+
+* Gmail SMTP
+* SMTP host: `smtp.gmail.com`
+* SMTP port: `587`
+* Authentication enabled
+* STARTTLS enabled
+* Personalized welcome messages
+* Asynchronous execution using `@Async`
+
+The email service is designed so that an email delivery failure is logged instead of automatically undoing a successfully saved registration.
+
+---
+
+# 🔌 REST API
+
+The REST API provides user management through HTTP and JSON-oriented endpoints.
+
+It includes:
+
+* JWT login
+* Bearer-token authentication
+* Protected API endpoints
+* User CRUD
+* HTTP status handling
+* Validation support
+* Exception handling
+
+---
+
+# 🔄 Application Workflows
+
+## 📝 Registration Workflow
+
+```text
+┌────────────────────────┐
+│ Browser Signup Form    │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ SignupController       │
+│ Request Validation     │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ UserService            │
+│ Duplicate Check        │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ PasswordEncoder        │
+│ BCrypt Hash            │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ UserRepository         │
+│ Save User              │
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│ Async EmailService     │
+└────────────┬───────────┘
+             │
+             ▼
+       Redirect /login
+```
+
+---
+
+## 🔐 Browser Authentication Workflow
+
+```text
+POST /login
+     │
+     ▼
+Look up username
+     │
+     ▼
+Compare submitted password
+with BCrypt hash
+     │
+     ▼
+Store username in HttpSession
+     │
+     ▼
+Redirect to /home
+```
+
+---
+
+## 🎟️ JWT Workflow
 
 ```text
 POST /api/auth/login
-        |
-        v
-Validate username and password
-        |
-        v
+          │
+          ▼
+Validate username/password
+          │
+          ▼
 Generate signed JWT
-        |
-        v
-Return token to API client
-        |
-        v
-Client sends Authorization: Bearer <token>
-        |
-        v
-JwtAuthenticationFilter validates token
-        |
-        v
-Protected controller is allowed to execute
+          │
+          ▼
+Return token
+          │
+          ▼
+Client sends:
+Authorization: Bearer <token>
+          │
+          ▼
+JwtAuthenticationFilter
+          │
+          ▼
+Validate JWT
+          │
+          ▼
+Establish authentication
+          │
+          ▼
+Protected Controller
 ```
 
-### Image workflows
+---
+
+## 🖼️ Image Workflows
+
+### Database Gallery
 
 ```text
-Database gallery:
-multipart file -> Base64 content -> ImageTable -> browser gallery
-
-Cloudinary gallery:
-multipart file -> Cloudinary -> secure_url -> ImageTable2 -> browser gallery
+multipart file
+      ↓
+Base64 content
+      ↓
+ImageTable
+      ↓
+browser gallery
 ```
 
-## Architecture
+### Cloudinary Gallery
 
 ```text
-                         Browser / Postman
-                                  |
-                 +----------------+----------------+
-                 |                                 |
-          Thymeleaf web flow                 REST API flow
-                 |                                 |
-                 v                                 v
-           MVC Controllers                 REST Controllers
-                 |                                 |
-                 +----------------+----------------+
-                                  v
-                            Service Layer
-                 authentication, users, email, uploads
-                                  |
-                                  v
-                         Spring Data Repositories
-                                  |
-                                  v
-                    MySQL-compatible relational database
-
-                 External integrations:
-                 Gmail SMTP       Cloudinary
+multipart file
+      ↓
+Cloudinary
+      ↓
+secure_url
+      ↓
+ImageTable2
+      ↓
+browser gallery
 ```
 
-### Configuration package
+---
 
-Contains security and external-service configuration:
+# 🏗️ Architecture
 
-- `SecurityConfig` configures Spring Security and the password encoder.
-- `JwtAuthenticationFilter` processes Bearer tokens.
-- `JWUtil` creates and validates JWTs.
-- `CloudinaryConfig` creates the Cloudinary client.
+MySpringWeb follows a conventional **layered / N-tier architecture**.
 
-### Controller package
+```text
+                         ┌──────────────────────┐
+                         │   Browser / Postman  │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                    ▼                               ▼
+           ┌─────────────────┐             ┌─────────────────┐
+           │ Thymeleaf Web   │             │    REST API     │
+           │      Flow       │             │      Flow       │
+           └────────┬────────┘             └────────┬────────┘
+                    │                               │
+                    ▼                               ▼
+           ┌─────────────────┐             ┌─────────────────┐
+           │ MVC Controllers │             │ REST Controllers│
+           └────────┬────────┘             └────────┬────────┘
+                    │                               │
+                    └───────────────┬───────────────┘
+                                    ▼
+                         ┌──────────────────────┐
+                         │    Service Layer    │
+                         │                      │
+                         │ Authentication      │
+                         │ Users                │
+                         │ Email                │
+                         │ Uploads              │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Spring Data JPA      │
+                         │ Repositories         │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ MySQL-Compatible DB  │
+                         └──────────────────────┘
 
-Contains browser-facing MVC controllers for page rendering, forms, user administration, galleries, and mail-related pages.
+                    External Integrations
+                    ┌──────────┐   ┌────────────┐
+                    │  Gmail   │   │ Cloudinary │
+                    │   SMTP   │   │   Images   │
+                    └──────────┘   └────────────┘
+```
 
-### RController package
+---
 
-Contains REST controllers for authentication and user CRUD operations.
+# 📦 Package Architecture
 
-### Service package
+## ⚙️ Configuration Package
 
-Contains reusable application logic:
+Contains security and external-service configuration.
 
-- `UserService` defines user operations.
-- `UserServiceImpl` implements registration, lookup, authentication, hashing, and persistence behavior.
-- `EmailService` composes and sends welcome email messages asynchronously.
+### `SecurityConfig`
 
-### Repository package
+Responsible for Spring Security configuration and password encoding.
 
-Contains Spring Data JPA repositories for users and both image entities. They provide persistence access without requiring handwritten SQL for the current operations.
+### `JwtAuthenticationFilter`
 
-### Exception package
+Processes incoming Bearer tokens and establishes API authentication.
 
-Contains the custom `UserNotFoundException` and `GlobalExceptionHandler`, which translates common failures into HTTP responses.
+### `JWUtil`
 
-## Technology Stack
+Responsible for creating and validating JWT tokens.
 
-| Area | Technology | Purpose |
-|---|---|---|
-| Language | Java 17 | Application implementation |
-| Framework | Spring Boot 4.1.0 | Application startup and auto-configuration |
-| Web | Spring MVC | HTTP request mapping and web controllers |
-| Views | Thymeleaf | Server-rendered HTML templates |
-| Security | Spring Security | Request security and password encoding |
-| Passwords | BCrypt | One-way password hashing |
-| Tokens | JJWT 0.11.5 | JWT creation and parsing |
-| Persistence | Spring Data JPA and Hibernate | Object-relational mapping |
-| Database driver | MySQL Connector/J | MySQL-compatible database connectivity |
-| Test database | H2 | Test-scope database dependency |
-| Validation | Spring Boot Starter Validation | Jakarta validation support |
-| Email | Spring Boot Starter Mail | Gmail SMTP integration |
-| Media | Cloudinary HTTP5 client 2.4.0 | External image storage |
-| Frontend | HTML, CSS, Thymeleaf | Browser user interface |
-| Build | Maven and Maven Wrapper | Dependency management and packaging |
-| Packaging | Docker | Container image creation |
-| Deployment | Render | Cloud web-service deployment |
-| Testing tool | Postman | Manual REST API testing |
+### `CloudinaryConfig`
 
-## Project Structure
+Creates/configures the Cloudinary client.
+
+---
+
+## 🌐 Controller Package
+
+Contains browser-facing MVC controllers responsible for:
+
+* Page rendering
+* Forms
+* Registration
+* Login
+* User administration
+* Gallery functionality
+* Mail-related pages
+
+---
+
+## 🔌 RController Package
+
+Contains REST controllers for:
+
+* API authentication
+* User CRUD operations
+* Protected API endpoints
+
+---
+
+## 🧠 Service Package
+
+Contains reusable business logic.
+
+### `UserService`
+
+Defines user-related operations.
+
+### `UserServiceImpl`
+
+Implements:
+
+* Registration
+* User lookup
+* Authentication
+* Password hashing
+* Persistence behavior
+
+### `EmailService`
+
+Responsible for:
+
+* Creating welcome emails
+* Sending emails
+* Asynchronous email processing
+
+---
+
+## 🗄️ Repository Package
+
+Contains Spring Data JPA repositories for:
+
+* Users
+* Database images
+* Cloudinary image records
+
+These repositories provide database access without requiring handwritten SQL for the current operations.
+
+---
+
+## ⚠️ Exception Package
+
+Contains custom application exceptions and centralized exception handling.
+
+### `UserNotFoundException`
+
+Used when a requested user cannot be found.
+
+### `GlobalExceptionHandler`
+
+Converts common application exceptions into appropriate HTTP responses.
+
+---
+
+# 🛠️ Technology Stack
+
+| Area            | Technology                    | Purpose                               |
+| --------------- | ----------------------------- | ------------------------------------- |
+| ☕ Language      | Java 17                       | Application implementation            |
+| 🌱 Framework    | Spring Boot 4.1.0             | Application startup and configuration |
+| 🌐 Web          | Spring MVC                    | HTTP request mapping                  |
+| 🎨 Views        | Thymeleaf                     | Server-rendered HTML                  |
+| 🔐 Security     | Spring Security               | Request security                      |
+| 🔑 Passwords    | BCrypt                        | One-way password hashing              |
+| 🎟️ Tokens      | JJWT 0.11.5                   | JWT creation and parsing              |
+| 🗄️ Persistence | Spring Data JPA               | Data access                           |
+| 🧩 ORM          | Hibernate                     | Object-relational mapping             |
+| 🐬 Database     | MySQL-compatible DB           | Production persistence                |
+| 🧪 Test DB      | H2                            | Test database                         |
+| ✅ Validation    | Spring Boot Validation        | Jakarta validation                    |
+| 📧 Email        | Spring Boot Mail              | Gmail SMTP                            |
+| ☁️ Media        | Cloudinary HTTP5 Client 2.4.0 | External image storage                |
+| 🎨 Frontend     | HTML, CSS, Thymeleaf          | Browser UI                            |
+| 📦 Build        | Maven                         | Dependency/build management           |
+| 🐳 Packaging    | Docker                        | Containerization                      |
+| 🚀 Deployment   | Render                        | Cloud deployment                      |
+| 🧪 Testing      | JUnit / Spring Test           | Automated testing                     |
+| 🔬 API Testing  | Postman                       | Manual REST testing                   |
+
+---
+
+# 📁 Project Structure
 
 ```text
 MySpringWeb/
+│
 ├── pom.xml
 ├── mvnw
 ├── mvnw.cmd
@@ -333,10 +640,14 @@ MySpringWeb/
 ├── README.md
 ├── LICENSE
 ├── To_Do.txt
-├── Test.java                         # Standalone root utility, not the app test suite
+├── Test.java
+│
 └── src/
+    │
     ├── main/
+    │   │
     │   ├── java/io/herald/MySpringWeb/
+    │   │   │
     │   │   ├── MySpringWebApplication.java
     │   │   ├── Configuration/
     │   │   ├── Controller/
@@ -345,87 +656,138 @@ MySpringWeb/
     │   │   ├── RController/
     │   │   ├── Repository/
     │   │   └── Service/
+    │   │
     │   └── resources/
     │       ├── application.properties
-    │       ├── static/css/styles.css
+    │       ├── static/
+    │       │   └── css/
+    │       │       └── styles.css
     │       └── templates/
+    │
     └── test/
         ├── java/io/herald/MySpringWeb/
-        └── resources/application.properties
+        └── resources/
+            └── application.properties
 ```
 
-## Data Model
+---
 
-### `UserTable`
+# 🗄️ Data Model
 
-Stores application users:
+## `UserTable`
 
-- Generated integer ID
-- Username
-- Email address
-- BCrypt-encoded password
-- One-to-many relationship with locally stored images
-- One-to-many relationship with Cloudinary image records
+Stores application users.
 
-The model includes `@NotBlank` and `@Email` constraints for appropriate fields. The user relationships are configured with cascading delete behavior.
+### Main fields
 
-### `ImageTable`
+* Generated integer ID
+* Username
+* Email address
+* BCrypt-encoded password
 
-Represents database-backed image storage:
+### Relationships
 
-- Generated image ID
-- Base64 image content stored as a string in a `MEDIUMBLOB` column
-- Many-to-one relationship to `UserTable`
+```text
+UserTable
+   │
+   ├─────────────── 1:N ────────────────> ImageTable
+   │
+   └─────────────── 1:N ────────────────> ImageTable2
+```
 
-### `ImageTable2`
+The model uses validation annotations such as:
 
-Represents Cloudinary-backed image storage:
+* `@NotBlank`
+* `@Email`
 
-- Generated image ID
-- Cloudinary image URL
-- Many-to-one relationship to `UserTable`
+User relationships are configured with cascading delete behavior.
 
-The current Cloudinary upload path saves the URL but does not populate the user relationship. This is recorded as a future data-ownership improvement below.
+---
 
-### Persistence behavior
+## `ImageTable`
 
-- Spring Data repositories handle database access.
-- Hibernate is configured with `spring.jpa.hibernate.ddl-auto=update`.
-- The production configuration uses a MySQL JDBC driver and environment-provided connection details.
-- H2 is included for tests, not as the production database.
+Represents database-backed image storage.
 
-## Web Application Routes
+| Field         | Description                               |
+| ------------- | ----------------------------------------- |
+| ID            | Generated image ID                        |
+| Image content | Base64 encoded image                      |
+| User          | `ManyToOne` relationship with `UserTable` |
+
+The image content is stored as a string in a `MEDIUMBLOB` column.
+
+---
+
+## `ImageTable2`
+
+Represents Cloudinary-backed image storage.
+
+| Field     | Description                               |
+| --------- | ----------------------------------------- |
+| ID        | Generated image ID                        |
+| Image URL | Cloudinary URL                            |
+| User      | `ManyToOne` relationship with `UserTable` |
+
+> ⚠️ The current Cloudinary upload path saves the URL but does not populate the user relationship. This is documented as a future data-ownership improvement.
+
+---
+
+## Persistence Behavior
+
+* Spring Data repositories handle database access.
+* Hibernate manages ORM behavior.
+* `spring.jpa.hibernate.ddl-auto=update` is currently used.
+* Production configuration uses a MySQL JDBC driver.
+* Database connection values are supplied through environment variables.
+* H2 is included for tests rather than production.
+
+---
+
+# 🌐 Web Application Routes
 
 The following routes are implemented by the browser-facing MVC controllers.
 
-| Method | Route | Behavior |
-|---|---|---|
-| `GET` | `/` | Renders the first page |
-| `GET` | `/nextPage` | Renders the next page |
-| `GET` | `/login` | Renders the login form |
-| `POST` | `/login` | Authenticates the user and stores the username in the session |
-| `GET` | `/signup` | Renders the signup form |
-| `POST` | `/signup` | Validates and registers a user, then triggers a welcome email |
-| `GET` | `/home` | Displays users |
-| `GET` | `/logout` | Invalidates the HTTP session |
-| `POST` | `/deleteUser` | Deletes a user by ID |
-| `POST` | `/editUser` | Loads a user for editing |
-| `POST` | `/updateUser` | Updates username and email |
-| `GET` | `/gallery` | Displays database-backed images |
-| `POST` | `/gallery` | Stores an uploaded image as Base64 database content |
-| `GET` | `/gallery2` | Displays Cloudinary image URLs |
-| `POST` | `/gallery2` | Uploads an image to Cloudinary and saves its URL |
-| `GET` | `/mail` | Renders the mail page after a session check |
+| Method | Route         | Behavior                                            |
+| ------ | ------------- | --------------------------------------------------- |
+| `GET`  | `/`           | Renders the first page                              |
+| `GET`  | `/nextPage`   | Renders the next page                               |
+| `GET`  | `/login`      | Renders login form                                  |
+| `POST` | `/login`      | Authenticates user and stores username in session   |
+| `GET`  | `/signup`     | Renders signup form                                 |
+| `POST` | `/signup`     | Validates/registers user and triggers welcome email |
+| `GET`  | `/home`       | Displays users                                      |
+| `GET`  | `/logout`     | Invalidates HTTP session                            |
+| `POST` | `/deleteUser` | Deletes user by ID                                  |
+| `POST` | `/editUser`   | Loads user for editing                              |
+| `POST` | `/updateUser` | Updates username and email                          |
+| `GET`  | `/gallery`    | Displays database-backed images                     |
+| `POST` | `/gallery`    | Stores uploaded image as Base64                     |
+| `GET`  | `/gallery2`   | Displays Cloudinary images                          |
+| `POST` | `/gallery2`   | Uploads image to Cloudinary                         |
+| `GET`  | `/mail`       | Renders mail page after session check               |
 
-The browser UI is implemented with templates in `src/main/resources/templates` and shared styling in `src/main/resources/static/css/styles.css`.
+The browser UI is implemented using:
 
-## REST API
+```text
+src/main/resources/templates/
+src/main/resources/static/css/styles.css
+```
 
-The REST API is available under `/api`.
+---
 
-### API authentication
+# 🔌 REST API
 
-#### Login
+The REST API is available under:
+
+```text
+/api
+```
+
+---
+
+## 🔐 API Authentication
+
+### Login
 
 ```http
 POST /api/auth/login
@@ -434,7 +796,7 @@ Content-Type: application/x-www-form-urlencoded
 username=alice&password=your-password
 ```
 
-The current controller accepts `username` and `password` as request parameters. A successful request returns a token:
+A successful request returns:
 
 ```json
 {
@@ -442,370 +804,1241 @@ The current controller accepts `username` and `password` as request parameters. 
 }
 ```
 
-Invalid credentials return `401 Unauthorized`.
+Invalid credentials return:
 
-### Authentication header
+```text
+401 Unauthorized
+```
 
-Send the token with protected requests:
+---
+
+## 🎟️ Authentication Header
+
+Protected endpoints require:
 
 ```http
 Authorization: Bearer <token>
 ```
 
-### Available endpoints
+---
 
-| Method | Endpoint | Authentication | Purpose |
-|---|---|---|---|
-| `POST` | `/api/auth/login` | Public | Authenticate and receive a JWT |
-| `GET` | `/api/hello` | Required | Protected API connectivity check |
-| `GET` | `/api/users` | Required | Retrieve all users |
-| `GET` | `/api/users/{id}` | Required | Retrieve one user |
-| `POST` | `/api/users` | Required | Create a user |
-| `PUT` | `/api/users/{id}` | Required | Update a user |
-| `DELETE` | `/api/users/{id}` | Required | Delete a user |
+## 📋 Available Endpoints
 
-### Example protected request
+| Method   | Endpoint          | Authentication | Purpose                          |
+| -------- | ----------------- | -------------- | -------------------------------- |
+| `POST`   | `/api/auth/login` | Public         | Authenticate and receive JWT     |
+| `GET`    | `/api/hello`      | Required       | Protected API connectivity check |
+| `GET`    | `/api/users`      | Required       | Retrieve all users               |
+| `GET`    | `/api/users/{id}` | Required       | Retrieve one user                |
+| `POST`   | `/api/users`      | Required       | Create a user                    |
+| `PUT`    | `/api/users/{id}` | Required       | Update a user                    |
+| `DELETE` | `/api/users/{id}` | Required       | Delete a user                    |
+
+---
+
+## 🧪 Example API Request
+
+After obtaining a token:
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://localhost:8080/api/users
+curl -H "Authorization: Bearer <token>" \
+     http://localhost:8080/api/users
 ```
 
-### Current API response behavior
+---
 
-The current API uses the application entity model directly in several responses. This makes the API straightforward for demonstration and testing, but it is not yet an ideal public contract. DTOs, password redaction, explicit request models, and consistent error bodies are future improvements.
+## 📦 Example User Request
 
-## Security Design
+```http
+POST /api/users
+Authorization: Bearer <token>
+Content-Type: application/json
+```
 
-### Password security
+Example body:
 
-Passwords are never intended to be stored as plain text. During registration, `UserServiceImpl` encodes the supplied password with BCrypt. During login, the supplied password is compared with the stored hash using `PasswordEncoder.matches`.
+```json
+{
+  "username": "alice",
+  "email": "alice@example.com",
+  "password": "your-password"
+}
+```
 
-### Browser sessions
+---
 
-The browser login flow stores the authenticated username in the HTTP session. Selected controllers check that session value before allowing page access or user actions.
+## 📌 Current API Response Behavior
 
-### JWT authentication
+The current API uses application entity models directly in several responses.
 
-- JWTs are signed with the configured secret.
-- HS256 is used by the JWT utility.
-- The username is stored as the token subject.
-- The configured expiration is `86,400,000` milliseconds, equivalent to 24 hours.
-- `JwtAuthenticationFilter` reads Bearer tokens and establishes authentication for protected API requests.
-- `/api/**` requires authentication through Spring Security.
+This makes the API simple for demonstration and testing, but it is **not yet an ideal public API contract**.
 
-### Public routes
+Future improvements include:
 
-The security configuration explicitly permits the home entry route, login and signup pages, static resources, and `/api/auth/**`. API routes outside authentication are protected. Some browser pages depend on controller-level session checks rather than a complete Spring Security form-login flow.
+* DTOs
+* Password-field redaction
+* Dedicated request models
+* Consistent error response bodies
+* API versioning
+* Pagination
 
-## Configuration
+---
 
-The application reads secrets and deployment-specific values from environment variables. The required variables are:
+# 🔐 Security Design
 
-| Variable | Purpose |
-|---|---|
-| `DB_URL` | JDBC connection URL |
-| `DB_USERNAME` | Database username |
-| `DB_PASSWORD` | Database password |
-| `MAIL_USERNAME` | Gmail account used by SMTP |
-| `MAIL_PASSWORD` | Gmail app password or SMTP credential |
-| `JWT_SECRET` | Secret used to sign JWTs |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+## 🔑 Password Security
 
-Additional application settings currently include:
+Passwords are not intended to be stored as plain text.
+
+During registration:
+
+```text
+Plain Password
+      ↓
+BCrypt
+      ↓
+Password Hash
+      ↓
+Database
+```
+
+During login:
+
+```text
+Submitted Password
+      ↓
+PasswordEncoder.matches()
+      ↓
+Stored BCrypt Hash
+      ↓
+Authentication Result
+```
+
+---
+
+## 🍪 Browser Sessions
+
+The browser login flow stores the authenticated username inside the HTTP session.
+
+Selected controllers check the session value before allowing certain page access or user actions.
+
+---
+
+## 🎟️ JWT Authentication
+
+The application currently uses:
+
+* Signed JWT tokens
+* HS256
+* Username as JWT subject
+* 24-hour token expiration
+* Bearer-token authentication
+* `JwtAuthenticationFilter`
+
+The configured expiration is:
+
+```text
+86,400,000 milliseconds
+```
+
+Equivalent to:
+
+```text
+24 hours
+```
+
+---
+
+## 🌐 Public Routes
+
+The security configuration explicitly permits routes for:
+
+* Home entry
+* Login
+* Signup
+* Static resources
+* `/api/auth/**`
+
+The remaining API routes require authentication.
+
+Some browser pages currently depend on controller-level session checks rather than a completely centralized Spring Security form-login architecture.
+
+---
+
+# ⚙️ Configuration
+
+The application uses environment variables for secrets and deployment-specific values.
+
+## 🔐 Environment Variables
+
+| Variable                | Purpose                              |
+| ----------------------- | ------------------------------------ |
+| `DB_URL`                | JDBC connection URL                  |
+| `DB_USERNAME`           | Database username                    |
+| `DB_PASSWORD`           | Database password                    |
+| `MAIL_USERNAME`         | Gmail account                        |
+| `MAIL_PASSWORD`         | Gmail app password / SMTP credential |
+| `JWT_SECRET`            | JWT signing secret                   |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name                |
+| `CLOUDINARY_API_KEY`    | Cloudinary API key                   |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret                |
+
+---
+
+## 📝 Application Settings
+
+Important application settings include:
 
 ```properties
 server.port=8080
+
 spring.jpa.hibernate.ddl-auto=update
+
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
+
 jwt.expiration=86400000
+
 spring.servlet.multipart.max-file-size=20MB
 spring.servlet.multipart.max-request-size=50MB
 ```
 
-### Gmail requirements
+---
 
-1. Enable two-factor authentication for the Gmail account.
-2. Create a Gmail app password.
-3. Set `MAIL_USERNAME` to the sender address.
-4. Set `MAIL_PASSWORD` to the app password.
-5. Register a test user and verify delivery.
+# 📧 Gmail Setup
 
-### Cloudinary requirements
+To enable registration emails:
 
-1. Create a Cloudinary account.
-2. Obtain the cloud name, API key, and API secret.
-3. Export the three Cloudinary variables.
-4. Start the application.
-5. Upload a test image through `/gallery2`.
+### 1. Enable 2-Step Verification
 
-Keep all credentials out of source control. Do not commit real database passwords, Gmail credentials, JWT secrets, or Cloudinary secrets.
+Enable two-factor authentication on the Gmail account.
 
-## Local Development Setup
+### 2. Create an App Password
 
-### Prerequisites
+Create a Gmail app password for SMTP access.
 
-- Java Development Kit 17
-- Git
-- A MySQL-compatible database, such as MySQL or TiDB
-- Maven, or use the included Maven Wrapper
-- Docker, optional for container execution
-- Postman, optional for manual API testing
-- Gmail SMTP credentials, required for working email delivery
-- Cloudinary credentials, required for the Cloudinary gallery
+### 3. Configure Credentials
 
-### Clone the project
+Set:
+
+```text
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-gmail-app-password
+```
+
+### 4. Register a User
+
+Create a test account through:
+
+```text
+/signup
+```
+
+### 5. Verify Delivery
+
+Check the recipient inbox and application logs.
+
+> ⚠️ Do not use your normal Gmail password as the SMTP password when Google requires an app password.
+
+---
+
+# ☁️ Cloudinary Setup
+
+To enable Cloudinary image uploads:
+
+### 1. Create a Cloudinary Account
+
+Create an account and open the dashboard.
+
+### 2. Obtain Credentials
+
+You will need:
+
+```text
+Cloud Name
+API Key
+API Secret
+```
+
+### 3. Set Environment Variables
+
+```text
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+### 4. Start the Application
+
+Run the application normally.
+
+### 5. Test Uploads
+
+Open:
+
+```text
+/gallery2
+```
+
+and upload an image.
+
+---
+
+# 🔒 Security of Configuration
+
+Never commit the following to Git:
+
+```text
+Database passwords
+Gmail passwords
+Gmail app passwords
+JWT secrets
+Cloudinary API secrets
+Production environment files
+```
+
+Use environment variables or a secure secret-management solution instead.
+
+---
+
+# 💻 Local Development Setup
+
+## 📋 Prerequisites
+
+Before running the project, install:
+
+* ☕ Java Development Kit 17
+* 🔧 Git
+* 🐬 MySQL-compatible database
+* 📦 Maven or Maven Wrapper
+* 🐳 Docker — optional
+* 🧪 Postman — optional
+* 📧 Gmail SMTP credentials
+* ☁️ Cloudinary credentials
+
+---
+
+# 📥 Clone the Project
 
 ```bash
 git clone <your-repository-url>
+
 cd MySpringWeb
 ```
 
-### Configure the environment
+---
 
-Set the variables listed in [Configuration](#configuration) in the shell or IDE run configuration. The application does not provide safe production defaults for the database, email, JWT, or Cloudinary credentials.
+# ⚙️ Configure Environment Variables
 
-On Windows PowerShell, variables can be set for the current terminal session like this:
+Set the variables described in the [Configuration](#-configuration) section.
+
+---
+
+## 🪟 Windows PowerShell
 
 ```powershell
 $env:DB_URL="jdbc:mysql://localhost:3306/myspringweb"
 $env:DB_USERNAME="your-database-user"
 $env:DB_PASSWORD="your-database-password"
+
 $env:MAIL_USERNAME="your-email@gmail.com"
 $env:MAIL_PASSWORD="your-gmail-app-password"
+
 $env:JWT_SECRET="replace-with-a-long-random-secret"
+
 $env:CLOUDINARY_CLOUD_NAME="your-cloud-name"
 $env:CLOUDINARY_API_KEY="your-api-key"
 $env:CLOUDINARY_API_SECRET="your-api-secret"
 ```
 
-Use a database URL appropriate for the database provider and TLS requirements in your environment.
+Use a database URL appropriate for your database provider and TLS configuration.
 
-## Running the Application
+---
 
-Using the Maven Wrapper on Windows:
+# ▶️ Running the Application
+
+## Using Maven Wrapper — Windows
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-Using Maven directly:
+## Using Maven
 
 ```bash
 mvn spring-boot:run
 ```
 
-The application listens on:
+---
+
+# 🌍 Application URL
+
+Once started, the application runs on:
 
 ```text
 http://localhost:8080
 ```
 
-Useful starting points include:
+---
 
-- `http://localhost:8080/` for the first page
-- `http://localhost:8080/login` for browser login
-- `http://localhost:8080/signup` for registration
-- `http://localhost:8080/gallery` for database image storage
-- `http://localhost:8080/gallery2` for Cloudinary image storage
+## 🔗 Useful Pages
 
-## Testing
+| Page                  | URL                              |
+| --------------------- | -------------------------------- |
+| 🏠 Home               | `http://localhost:8080/`         |
+| 🔐 Login              | `http://localhost:8080/login`    |
+| 📝 Signup             | `http://localhost:8080/signup`   |
+| 🖼️ Database Gallery  | `http://localhost:8080/gallery`  |
+| ☁️ Cloudinary Gallery | `http://localhost:8080/gallery2` |
+| 📧 Mail Page          | `http://localhost:8080/mail`     |
 
-Run the test suite with the Maven Wrapper:
+---
+
+# 🧪 Testing
+
+Run the test suite with the Maven Wrapper.
+
+## Windows
 
 ```powershell
 .\mvnw.cmd test
 ```
 
+## Maven
+
+```bash
+mvn test
+```
+
+---
+
+## Current Tests
+
 The current visible tests include:
 
-- `MySpringWebApplicationTests`, which verifies that the Spring application context loads.
-- `EmailServiceTest`, which tests welcome email composition and blank-recipient behavior.
+### `MySpringWebApplicationTests`
 
-Manual REST testing can be performed in Postman:
+Verifies that the Spring application context loads successfully.
 
-1. Submit `POST /api/auth/login` with `username` and `password` request parameters.
-2. Copy the returned token.
-3. Add `Authorization: Bearer <token>` to protected requests.
-4. Exercise `GET`, `POST`, `PUT`, and `DELETE` operations under `/api/users`.
+### `EmailServiceTest`
 
-The repository does not currently show comprehensive controller, JWT, authorization, repository, upload, or end-to-end tests. Those are included in the future testing roadmap.
+Tests:
 
-## Docker
+* Welcome email composition
+* Blank-recipient behavior
 
-The Dockerfile uses a two-stage build:
+---
 
-1. The build stage uses `maven:3.9-eclipse-temurin-17`, copies `pom.xml` and `src`, and packages the application with tests skipped.
-2. The runtime stage uses `eclipse-temurin:17-jre-alpine`, copies the generated JAR, exposes port `8080`, and starts the application with `java -jar app.jar`.
+# 🔬 Manual REST API Testing
 
-Build and run locally:
+Postman can be used for manual API verification.
+
+### Step 1 — Login
+
+Send:
+
+```http
+POST /api/auth/login
+```
+
+with:
+
+```text
+username
+password
+```
+
+as request parameters.
+
+### Step 2 — Copy Token
+
+Copy the returned JWT.
+
+### Step 3 — Add Authorization
+
+Add:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Step 4 — Test API
+
+Exercise:
+
+```text
+GET
+POST
+PUT
+DELETE
+```
+
+under:
+
+```text
+/api/users
+```
+
+---
+
+## ⚠️ Testing Limitations
+
+The repository does not currently show comprehensive tests for:
+
+* Controllers
+* JWT authentication
+* Authorization
+* Repositories
+* Upload functionality
+* Cloudinary integration
+* End-to-end workflows
+
+These are included in the future testing roadmap.
+
+---
+
+# 🐳 Docker
+
+The project uses a **multi-stage Docker build**.
+
+## Build Stage
+
+The build stage uses:
+
+```text
+maven:3.9-eclipse-temurin-17
+```
+
+It:
+
+1. Copies `pom.xml`
+2. Copies application source
+3. Builds the application
+4. Packages the JAR
+
+## Runtime Stage
+
+The runtime image uses:
+
+```text
+eclipse-temurin:17-jre-alpine
+```
+
+The generated JAR is copied into the runtime image.
+
+The application exposes:
+
+```text
+8080
+```
+
+and starts using:
+
+```bash
+java -jar app.jar
+```
+
+---
+
+# 🐳 Build Docker Image
 
 ```bash
 docker build -t myspringweb .
+```
+
+---
+
+# ▶️ Run Docker Container
+
+```bash
 docker run --env-file .env -p 8080:8080 myspringweb
 ```
 
-The `.env` file should remain local and should never contain values that are committed to the repository.
+Your `.env` file should remain local.
 
-## Render Deployment
+> ⚠️ Never commit `.env` if it contains real credentials.
 
-`render.yaml` defines a Docker web service named `my-spring-web`:
+Add it to `.gitignore`:
 
-- Environment: Docker
-- Plan: Free
-- Branch: `main`
-- Application port: `8080`
-- Required environment variables: database, mail, JWT, and Cloudinary settings
+```gitignore
+.env
+```
 
-Typical deployment process:
+---
 
-1. Push the repository to GitHub.
-2. Create or connect a Render Blueprint or web service.
-3. Confirm the service uses the `main` branch.
-4. Add every required environment variable in Render.
-5. Deploy the service.
-6. Check the deployment logs for database, mail, and external-service configuration errors.
-7. Verify the public web routes and authenticate against the REST API.
+# 🚀 Render Deployment
 
-Do not put secrets in `render.yaml`; its environment variables are configured with `sync: false` so their values can be entered securely in the Render dashboard.
+The project includes:
 
-## Operational Notes and Limitations
+```text
+render.yaml
+```
 
-The following points describe the current implementation honestly and define the boundary between the working demonstration and production readiness:
+The configuration defines a Docker web service named:
 
-- The Maven project currently declares Spring Boot `4.1.0`; older references to Spring Boot 3.x should not be used to describe the current build.
-- Production database properties use the MySQL JDBC driver. TiDB may work when configured through its MySQL-compatible connection, but there is no separate TiDB configuration file.
-- `spring.jpa.hibernate.ddl-auto=update` is convenient for development, but schema migrations should be used for controlled production changes.
-- CSRF is disabled globally. This should be reconsidered, especially for browser-based state-changing requests.
-- Some browser routes rely on manual session checks, while the Spring Security configuration permits more routes than a fully hardened application would.
-- Logout currently uses `GET /logout`; a state-changing logout action should use a safer, deliberate design.
-- File uploads have multipart size limits, but there is no complete MIME-type, content-signature, ownership, or malware validation pipeline.
-- Base64 database storage increases image size and can approach database column limits for large uploads.
-- Cloudinary image records are currently saved without assigning the owning user relationship.
-- The REST API returns entity objects in places, which can expose fields such as the password property or create serialization coupling with persistence relationships.
-- REST request bodies are not consistently annotated with `@Valid` at the controller boundary.
-- JWT authentication does not currently implement roles, refresh tokens, revocation, or a user-existence check after token validation.
-- The global fallback exception handler can include raw exception messages in responses; production APIs should return safe, stable error messages.
-- The Docker build skips tests. Tests should run in CI before an image is published.
-- No GitHub Actions workflow is currently visible in the repository structure.
+```text
+my-spring-web
+```
 
-## Future Scope
+---
 
-### Security hardening
+## Render Configuration
 
-- Protect every browser route consistently through Spring Security.
-- Replace manual session checks with a coherent authentication and authorization model.
-- Re-enable and configure CSRF protection for browser workflows where appropriate.
-- Use POST for logout and protect state-changing operations.
-- Add session fixation protection, secure cookie settings, session timeouts, and concurrency controls.
-- Introduce roles such as `USER` and `ADMIN` with method- or route-level authorization.
-- Enforce ownership checks before viewing, editing, deleting, or uploading user content.
-- Add rate limiting and account lockout or progressive delay for repeated login failures.
-- Validate JWT issuer, audience, algorithm, expiration, and user status.
-- Add refresh-token rotation and revocation for long-lived client sessions.
-- Rotate secrets through deployment configuration without exposing them in logs.
+| Setting          | Value                  |
+| ---------------- | ---------------------- |
+| Environment      | Docker                 |
+| Plan             | Free                   |
+| Branch           | `main`                 |
+| Application Port | `8080`                 |
+| Database         | Environment configured |
+| Email            | Environment configured |
+| JWT              | Environment configured |
+| Cloudinary       | Environment configured |
 
-### API quality
+---
 
-- Introduce request and response DTOs instead of exposing JPA entities.
-- Never return password fields in API responses.
-- Apply `@Valid` to create and update request models.
-- Return one consistent JSON error format for validation, authentication, authorization, and server failures.
-- Add pagination, filtering, sorting, and search to `GET /api/users`.
-- Add API versioning, for example `/api/v1`, before making the API a public contract.
-- Add OpenAPI/Swagger documentation and example request collections.
-- Use appropriate status codes consistently, including `201 Created` and `204 No Content` where applicable.
-- Add optimistic locking or conflict handling for concurrent updates.
+# ☁️ Render Deployment Steps
 
-### User experience
+### 1. Push to GitHub
 
-- Add clear validation messages and accessible form labels.
-- Add duplicate-email handling and account verification.
-- Add password strength rules, password change, password reset, and account deletion workflows.
-- Add pagination or lazy loading to user and image lists.
-- Add image previews, upload progress, better upload failure messages, and delete controls.
-- Add responsive design improvements and consistent navigation state.
-- Add an administrator dashboard with audit-friendly actions.
+Push the project repository to GitHub.
 
-### Image and media management
+```bash
+git add .
+git commit -m "Prepare application for deployment"
+git push origin main
+```
 
-- Validate MIME type, file signature, extension, and dimensions.
-- Enforce per-user storage quotas and server-side limits.
-- Link every Cloudinary record to its owning user.
-- Store Cloudinary public IDs so images can be deleted or transformed later.
-- Add image deletion and replacement operations.
-- Generate thumbnails and responsive image variants.
-- Move large or high-volume media fully to object storage rather than database BLOB columns.
-- Add malware scanning and metadata stripping where the deployment context requires it.
+### 2. Create Render Service
 
-### Reliability and maintainability
+Create or connect a Render Blueprint/web service.
 
-- Replace `ddl-auto=update` with Flyway or Liquibase migrations.
-- Add structured logging, correlation IDs, and health/readiness endpoints.
-- Add metrics and monitoring for database, email, JWT failures, uploads, and request latency.
-- Add centralized configuration profiles for local, test, staging, and production environments.
-- Add retry and timeout policies for external email and Cloudinary calls.
-- Add database indexes and query review as user and image volume grows.
-- Run tests, security checks, and image vulnerability scans in CI before deployment.
-- Add dependency update automation and a documented release process.
+### 3. Select Repository
 
-### Testing roadmap
+Connect the GitHub repository containing MySpringWeb.
 
-- Add controller tests for every browser route.
-- Add MockMvc tests for login, logout, registration, and session access.
-- Add JWT generation, expiration, malformed-token, and protected-route tests.
-- Add security tests for unauthorized and forbidden requests.
-- Add repository tests using H2 or a containerized MySQL-compatible database.
-- Add upload tests for empty, oversized, invalid, and valid files.
-- Add Cloudinary and mail integration tests using mocks or test services.
-- Add REST contract tests and Postman/Newman automation.
-- Add end-to-end tests for registration, login, CRUD, and gallery workflows.
-- Ensure the CI pipeline runs the complete test suite before Docker packaging.
+### 4. Confirm Branch
 
-### Deployment and scaling
+Use:
 
-- Add a managed production database with backups, migrations, and connection-pool tuning.
-- Add a production-grade email provider or transactional email service.
-- Use a CDN and optimized Cloudinary transformations for media delivery.
-- Add HTTPS enforcement, custom domains, and secure headers.
-- Add horizontal-scaling guidance and external session storage if multiple instances are used.
-- Add a CI/CD workflow for build, test, security scanning, and Render deployment.
-- Document backup, restore, incident response, and rollback procedures.
+```text
+main
+```
 
-## Learning Outcomes
+### 5. Configure Environment Variables
 
-This project demonstrates practical work with:
+Add all required variables:
 
-- Java 17 application development
-- Spring Boot application structure
-- Spring MVC request mapping
-- Thymeleaf server-side rendering
-- Spring Security configuration
-- BCrypt password hashing
-- HTTP sessions
-- JWT authentication and filters
-- REST API design with `ResponseEntity`
-- Spring Data JPA and Hibernate
-- Entity relationships and cascading persistence
-- Jakarta validation
-- Gmail SMTP and asynchronous service execution
-- Multipart file uploads
-- Database image storage and Cloudinary integration
-- Maven dependency management and wrappers
-- Docker multi-stage builds
-- Environment-based configuration
-- Render cloud deployment
-- Unit testing and Spring context testing
-- Manual API verification with Postman
+```text
+DB_URL
+DB_USERNAME
+DB_PASSWORD
 
-## Author
+MAIL_USERNAME
+MAIL_PASSWORD
 
-**Sulav Poudyal**
+JWT_SECRET
 
-Built as an Enterprise Web Systems Development project.
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+```
 
-## License
+### 6. Deploy
 
-See [LICENSE](LICENSE) for the project license information.
+Start the deployment.
+
+### 7. Monitor Logs
+
+Check deployment logs for:
+
+* Database connection problems
+* Mail configuration errors
+* Cloudinary errors
+* JWT configuration problems
+* Application startup failures
+
+### 8. Verify
+
+Test:
+
+* Public web pages
+* Registration
+* Login
+* User management
+* Image galleries
+* REST API authentication
+
+> 🔐 Do not put actual secrets directly inside `render.yaml`. Environment variables are configured securely through Render.
+
+---
+
+# 🩺 Operational Notes & Limitations
+
+The following points describe the current implementation honestly and define the boundary between the working demonstration and production readiness.
+
+### Spring Boot Version
+
+The Maven project currently declares:
+
+```text
+Spring Boot 4.1.0
+```
+
+Older references to Spring Boot 3.x should not be used to describe the current build.
+
+### Database
+
+Production database configuration uses the MySQL JDBC driver.
+
+TiDB may work because of MySQL compatibility, but there is no separate TiDB-specific configuration file.
+
+### Hibernate Schema Management
+
+The project currently uses:
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+```
+
+This is convenient during development.
+
+For production, controlled database migrations should be introduced.
+
+Recommended future tools:
+
+* Flyway
+* Liquibase
+
+### CSRF
+
+CSRF is currently disabled globally.
+
+This should be reconsidered, especially for browser-based state-changing requests.
+
+### Browser Security
+
+Some browser routes rely on manual session checks while Spring Security configuration handles API authentication.
+
+A fully hardened production application should use a more consistent security architecture.
+
+### Logout
+
+The current implementation uses:
+
+```text
+GET /logout
+```
+
+A safer state-changing logout design should use an appropriate protected request method such as POST.
+
+### File Uploads
+
+Multipart size limits exist:
+
+```text
+Maximum file size: 20MB
+Maximum request size: 50MB
+```
+
+However, the application does not yet provide a complete:
+
+* MIME-type validation system
+* File-signature validation
+* Ownership validation
+* Malware scanning pipeline
+
+### Base64 Image Storage
+
+Base64 database storage increases image size and can approach database column limits for large files.
+
+### Cloudinary Ownership
+
+Cloudinary image records are currently saved without assigning the owning user relationship.
+
+### REST Entity Exposure
+
+Some REST endpoints return JPA entity objects directly.
+
+This may expose fields such as the password property or create serialization coupling with persistence relationships.
+
+DTOs are recommended for a production API.
+
+### Validation
+
+REST request bodies are not consistently annotated with `@Valid` at the controller boundary.
+
+### JWT
+
+The current JWT implementation does not yet include:
+
+* Roles
+* Refresh tokens
+* Token revocation
+* Full user-status validation after token creation
+
+### Error Handling
+
+The global fallback exception handler may include raw exception messages.
+
+Production APIs should return safe and stable error messages rather than internal exception details.
+
+### Docker Testing
+
+The Docker build currently skips tests.
+
+Tests should run in CI before publishing a Docker image.
+
+### CI/CD
+
+No GitHub Actions workflow is currently visible in the repository structure.
+
+---
+
+# 🔮 Future Scope
+
+## 🔐 Security Hardening
+
+* [ ] Protect every browser route consistently through Spring Security.
+* [ ] Replace manual session checks with a coherent authentication and authorization model.
+* [ ] Re-enable and configure CSRF protection where appropriate.
+* [ ] Use POST for logout and protect state-changing operations.
+* [ ] Add session fixation protection.
+* [ ] Configure secure cookie settings.
+* [ ] Add session timeouts.
+* [ ] Add concurrency controls.
+* [ ] Introduce roles such as `USER` and `ADMIN`.
+* [ ] Add method-level or route-level authorization.
+* [ ] Enforce ownership checks for user content.
+* [ ] Add rate limiting.
+* [ ] Add account lockout or progressive delays for repeated login failures.
+* [ ] Validate JWT issuer.
+* [ ] Validate JWT audience.
+* [ ] Validate JWT algorithm.
+* [ ] Validate token expiration.
+* [ ] Validate user status after JWT authentication.
+* [ ] Add refresh-token rotation.
+* [ ] Add refresh-token revocation.
+* [ ] Rotate deployment secrets securely.
+
+---
+
+## 🔌 API Quality
+
+* [ ] Introduce request DTOs.
+* [ ] Introduce response DTOs.
+* [ ] Never return password fields.
+* [ ] Apply `@Valid` consistently.
+* [ ] Create a consistent JSON error format.
+* [ ] Add pagination to `GET /api/users`.
+* [ ] Add filtering.
+* [ ] Add sorting.
+* [ ] Add user search.
+* [ ] Introduce API versioning such as `/api/v1`.
+* [ ] Add OpenAPI/Swagger documentation.
+* [ ] Add example API request collections.
+* [ ] Use `201 Created` where appropriate.
+* [ ] Use `204 No Content` where appropriate.
+* [ ] Add optimistic locking.
+* [ ] Add concurrent update conflict handling.
+
+---
+
+## 🎨 User Experience
+
+* [ ] Improve form validation messages.
+* [ ] Add accessible form labels.
+* [ ] Add duplicate-email handling.
+* [ ] Add email/account verification.
+* [ ] Add password strength requirements.
+* [ ] Add password change.
+* [ ] Add password reset.
+* [ ] Add account deletion.
+* [ ] Add pagination or lazy loading.
+* [ ] Add image previews.
+* [ ] Add upload progress.
+* [ ] Improve upload failure messages.
+* [ ] Add image deletion.
+* [ ] Improve responsive design.
+* [ ] Improve navigation state.
+* [ ] Add an administrator dashboard.
+* [ ] Add audit-friendly administrative actions.
+
+---
+
+## 🖼️ Image & Media Management
+
+* [ ] Validate MIME types.
+* [ ] Validate file signatures.
+* [ ] Validate extensions.
+* [ ] Validate image dimensions.
+* [ ] Enforce per-user storage quotas.
+* [ ] Enforce server-side upload limits.
+* [ ] Link every Cloudinary record to its owning user.
+* [ ] Store Cloudinary public IDs.
+* [ ] Add image deletion.
+* [ ] Add image replacement.
+* [ ] Generate thumbnails.
+* [ ] Generate responsive image variants.
+* [ ] Move high-volume media fully to object storage.
+* [ ] Add malware scanning where required.
+* [ ] Strip metadata where appropriate.
+
+---
+
+## 🧱 Reliability & Maintainability
+
+* [ ] Replace `ddl-auto=update` with Flyway or Liquibase.
+* [ ] Add structured logging.
+* [ ] Add correlation IDs.
+* [ ] Add health endpoints.
+* [ ] Add readiness endpoints.
+* [ ] Add application metrics.
+* [ ] Monitor database failures.
+* [ ] Monitor email failures.
+* [ ] Monitor JWT failures.
+* [ ] Monitor upload failures.
+* [ ] Monitor request latency.
+* [ ] Create local/test/staging/production profiles.
+* [ ] Add retry policies for external services.
+* [ ] Add timeout policies.
+* [ ] Review database indexes.
+* [ ] Review database queries as data grows.
+* [ ] Add dependency update automation.
+* [ ] Add vulnerability scanning.
+* [ ] Document release procedures.
+
+---
+
+# 🧪 Testing Roadmap
+
+## Controller Testing
+
+* [ ] Add controller tests for every browser route.
+* [ ] Add MockMvc tests for login.
+* [ ] Add MockMvc tests for logout.
+* [ ] Add registration tests.
+* [ ] Add session-access tests.
+
+## Security Testing
+
+* [ ] Test JWT generation.
+* [ ] Test JWT expiration.
+* [ ] Test malformed JWTs.
+* [ ] Test missing JWTs.
+* [ ] Test protected routes.
+* [ ] Test unauthorized requests.
+* [ ] Test forbidden requests.
+
+## Repository Testing
+
+* [ ] Add repository tests using H2.
+* [ ] Add integration tests using a containerized MySQL-compatible database.
+
+## Upload Testing
+
+* [ ] Test empty files.
+* [ ] Test oversized files.
+* [ ] Test invalid file types.
+* [ ] Test invalid image content.
+* [ ] Test valid uploads.
+* [ ] Test upload ownership.
+
+## Integration Testing
+
+* [ ] Mock Cloudinary.
+* [ ] Mock email services.
+* [ ] Test REST contracts.
+* [ ] Automate Postman/Newman tests.
+
+## End-to-End Testing
+
+* [ ] Test registration.
+* [ ] Test login.
+* [ ] Test user CRUD.
+* [ ] Test database gallery.
+* [ ] Test Cloudinary gallery.
+* [ ] Test logout.
+* [ ] Test complete application workflows.
+
+---
+
+# 🚀 Deployment & Scaling Roadmap
+
+* [ ] Use a managed production database.
+* [ ] Configure automated database backups.
+* [ ] Introduce production migrations.
+* [ ] Tune database connection pools.
+* [ ] Use a production-grade email provider.
+* [ ] Use CDN-based media delivery.
+* [ ] Optimize Cloudinary transformations.
+* [ ] Enforce HTTPS.
+* [ ] Add custom domains.
+* [ ] Configure secure HTTP headers.
+* [ ] Add horizontal scaling guidance.
+* [ ] Add external session storage for multiple instances.
+* [ ] Create CI/CD pipeline.
+* [ ] Run automated tests before deployment.
+* [ ] Run security scanning before deployment.
+* [ ] Run Docker image vulnerability scanning.
+* [ ] Document backup procedures.
+* [ ] Document restore procedures.
+* [ ] Document incident response.
+* [ ] Document rollback procedures.
+
+---
+
+# 📚 Learning Outcomes
+
+This project demonstrates practical experience with:
+
+### ☕ Java
+
+* Java 17 application development
+* Object-oriented programming
+* Layered application design
+
+### 🌱 Spring Boot
+
+* Spring Boot application structure
+* Auto-configuration
+* Dependency injection
+* Spring MVC
+
+### 🌐 Web Development
+
+* HTTP request handling
+* MVC controllers
+* Thymeleaf templates
+* HTML forms
+* CSS
+
+### 🔐 Security
+
+* Spring Security
+* BCrypt password hashing
+* HTTP sessions
+* JWT authentication
+* Bearer tokens
+* Authentication filters
+
+### 🗄️ Persistence
+
+* Spring Data JPA
+* Hibernate
+* Entity relationships
+* Cascading operations
+* MySQL-compatible databases
+* H2 testing database
+
+### 📧 External Services
+
+* Gmail SMTP
+* Asynchronous email services
+* Cloudinary
+* External API integration
+
+### 🖼️ File Handling
+
+* Multipart file uploads
+* Base64 encoding
+* Database image storage
+* Cloud image storage
+
+### 🔌 REST APIs
+
+* REST controllers
+* CRUD operations
+* `ResponseEntity`
+* HTTP status codes
+* JWT-protected endpoints
+
+### 🐳 DevOps
+
+* Maven
+* Maven Wrapper
+* Docker
+* Multi-stage Docker builds
+* Environment variables
+* Render deployment
+
+### 🧪 Testing
+
+* Spring context testing
+* Service testing
+* Email service testing
+* Manual REST testing with Postman
+
+---
+
+# 📊 Feature Summary
+
+| Feature                      |  Status  |
+| ---------------------------- | :------: |
+| User Registration            |     ✅    |
+| BCrypt Password Hashing      |     ✅    |
+| Browser Login                |     ✅    |
+| Browser Logout               |     ✅    |
+| Session Authentication       |     ✅    |
+| User CRUD                    |     ✅    |
+| JWT Authentication           |     ✅    |
+| Protected REST API           |     ✅    |
+| Database Image Gallery       |     ✅    |
+| Cloudinary Gallery           |     ✅    |
+| Gmail SMTP                   |     ✅    |
+| Async Email                  |     ✅    |
+| JPA/Hibernate                |     ✅    |
+| MySQL-Compatible DB          |     ✅    |
+| H2 Test Database             |     ✅    |
+| Docker                       |     ✅    |
+| Render Configuration         |     ✅    |
+| Automated Tests              | 🟡 Basic |
+| Comprehensive Security Tests |    🔜    |
+| DTO-Based REST API           |    🔜    |
+| Role-Based Authorization     |    🔜    |
+| Database Migrations          |    🔜    |
+| CI/CD Pipeline               |    🔜    |
+| Production Hardening         |    🔜    |
+
+---
+
+# 🧭 Quick Start
+
+If you just want to get the project running:
+
+```bash
+# Clone
+git clone <your-repository-url>
+
+# Enter project
+cd MySpringWeb
+
+# Configure environment variables
+
+# Run application
+./mvnw spring-boot:run
+```
+
+Windows:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
+
+---
+
+# 🧪 Quick API Test
+
+### 1. Login
+
+```http
+POST http://localhost:8080/api/auth/login
+```
+
+Parameters:
+
+```text
+username=your-username
+password=your-password
+```
+
+### 2. Copy JWT
+
+```json
+{
+  "token": "your-jwt-token"
+}
+```
+
+### 3. Call Protected Endpoint
+
+```bash
+curl -H "Authorization: Bearer your-jwt-token" \
+     http://localhost:8080/api/users
+```
+
+---
+
+# 🗺️ Application Map
+
+```text
+                     MySpringWeb
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+        ▼                                   ▼
+   🌐 Web Interface                     🔌 REST API
+        │                                   │
+        ▼                                   ▼
+ Thymeleaf + MVC                    JWT + Spring Security
+        │                                   │
+        └─────────────────┬─────────────────┘
+                          │
+                          ▼
+                   🧠 Service Layer
+                          │
+             ┌────────────┼────────────┐
+             │            │            │
+             ▼            ▼            ▼
+           Users        Email       Uploads
+             │            │            │
+             ▼            ▼            ▼
+         Database       Gmail      Cloudinary
+             │
+             ▼
+       Spring Data JPA
+```
+
+---
+
+# ⚠️ Important Notes
+
+This project is primarily an **educational enterprise web application**.
+
+It demonstrates real-world concepts, but it should not be considered fully production-hardened.
+
+Before using it for a production workload, review:
+
+* Authentication architecture
+* Authorization
+* CSRF protection
+* File upload security
+* API DTO design
+* Password exposure
+* JWT lifecycle management
+* Database migrations
+* Monitoring
+* Logging
+* Automated security testing
+* CI/CD
+* Backup and recovery
+
+The [Future Scope](#-future-scope) section documents these improvements in detail.
+
+---
+
+# 👨‍💻 Author
+
+## **Sulav Poudyal**
+
+Built as an **Enterprise Web Systems Development** project.
+
+---
+
+# 📄 License
+
+See [`LICENSE`](LICENSE) for the project license information.
+
+---
+
+# ⭐ Final Note
+
+If this project helped you understand Spring Boot, JWT authentication, JPA, Docker, Cloudinary, or enterprise application architecture, consider giving the repository a ⭐.
+
+**Thank you for checking out MySpringWeb! 🚀**
